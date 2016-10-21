@@ -33,7 +33,6 @@ type TLLRegression
     tll.P = P
     tll.model = (tll.P .* (tll.α * ones(1,size(tll.P,2)))) * tll.β
 
-    tll.β.value = rand(K)
     tll
   end
 end
@@ -54,13 +53,18 @@ end
 optval(tll::TLLRegression) = tll.problem.optval
 
 function solve_for(tll::TLLRegression, var::Symbol)
+  info("solving for $(var)")
+  info("before learning $(var): $(getfield(tll,var).value)")
+
   fix!(getfield(tll,var))
   solve!(tll.problem)
   free!(getfield(tll, var))
+
+  info("after learning (status: $(tll.problem.status))$(var): $(getfield(tll,var).value)")
 end
 
 """
-    fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2})
+    fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; beta=randomvalues)
 
 Fits a TLLRegression model to the given data and resturns the
 learnt model (`::TLLRegression`).
@@ -72,13 +76,19 @@ learnt model (`::TLLRegression`).
 * `P`: MxK matrix specifying how to partition the M attributes into
     K subsets. P(m,k) should be 1 if attribute number m belongs to
     partition k.
+* `beta`: Initial value for betas
 
 """
-function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2})
+function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; beta = rand(size(P,2)))
+
+  Logging.configure(output=open("tllr.log", "a"), level=INFO)
+  info("------------ FIT ---------------")
+
   # row normalization
   X = X ./ sum(X,2)
 
   tll = TLLRegression(P)
+  tll.β.value = beta
   M,K = size(tll)
 
   # termination criteria is guided by epsilon... when two iterations optvalue
@@ -91,8 +101,6 @@ function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2})
   maxiterations = 5
 
   tll.problem = minimize( norm(X * tll.model - y) )
-
-  Logging.configure(level=INFO)
 
   while δ > ϵ && i < maxiterations
     info("Starting iteration n. $i")
