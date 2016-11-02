@@ -1,0 +1,43 @@
+reset;
+option solver "./snopt";
+option randseed 0;
+model problem_split.mod;
+
+data params.data;
+
+param test;
+param iter;
+param normalize;
+param best;
+param best_beta{1..K};
+param best_alpha{1..M};
+param local_minima{0..test};
+let best:=10000000000;
+let test:=2^K-1;
+
+for{i in 0..test} {
+  let {j in 1..M} alpha[j]:=Uniform(0,1);
+
+  let iter := i;
+  for{k in 1..K}{
+    let beta[k] := 2*(iter mod 2) - 1;
+    let iter := iter div 2;
+  }
+
+  solve;
+
+  display ab >> result.txt;
+  display beta >> result.txt;
+  display alpha >> result.txt;
+
+  let local_minima[i]:=ab;
+  if (ab<best) then {
+    let {k in 1..K} best_beta[k]:=beta[k];
+    let {m in 1..M} best_alpha[m]:=alpha[m];
+    let best:=ab;
+  }
+}
+display best;
+display best_beta;
+display best_alpha;
+display local_minima;

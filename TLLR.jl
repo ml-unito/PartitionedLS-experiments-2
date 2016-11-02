@@ -3,6 +3,7 @@ module TLLR
 using Convex
 using Logging
 using SCS
+using ECOS
 
 import Base.size
 export TLLRegression, fit, predict, alpha, beta, optval
@@ -22,21 +23,33 @@ features:
 type TLLRegression
   α::Variable
   β::Variable
-  P::Array{Int,2}
+  t::Variable
+
   model::AbstractExpr
   problem::Problem
-  verbose::Int
-  X
-  y
+  loss::AbstractExpr
+  objective::AbstractExpr
+  constraints::Array{Constraint,1}
+  regularization::AbstractExpr
 
-  function TLLRegression(P; verbose=0)
+  P::Array{Int,2}
+  X::Array{Float64,2}
+  y::Array{Float64,1}
+
+  verbose::Int
+
+  function TLLRegression(P, X, y; verbose=0)
     M, K = size(P)
     tll = new()
     tll.α = Variable(M)
     tll.β = Variable(K)
+    tll.t = Variable()
     tll.P = P
-    tll.model = (tll.P .* (tll.α * ones(1,size(tll.P,2)))) * tll.β
+    tll.X = X
+    tll.y = y
     tll.verbose = verbose
+
+    setmodel!(tll, tll.α, tll.β)
 
     tll
   end
@@ -55,7 +68,35 @@ function size(tll::TLLRegression)
   size(tll.P)
 end
 
+function evalloss(tll::TLLRegression)
+  evaluate(tll.loss)
+end
+
+function evalobjective(tll::TLLRegression)
+  evaluate(tll.objective)
+end
+
 optval(tll::TLLRegression) = tll.problem.optval
+
+function setmodel!(tll::TLLRegression, α, β)
+  tll.regularization =  0.0 * vecnorm(β,1)
+  if typeof(α) == Variable
+    tll.constraints = [α >= 0, sum(α' * tll.P, 1) == 1]
+  else
+    tll.constraints = []
+  end
+
+  tll.model = (tll.P .* (α * ones(1,size(tll.P,2)))) * β
+  tll.loss = norm(tll.X * tll.model + tll.t - tll.y)^2
+  tll.objective = tll.loss + tll.regularization
+  tll.problem = minimize(  tll.objective, tll.constraints )
+
+  # tll.β.value = ones(size(tll.β))
+  # tll.model = α
+  # tll.loss = norm(tll.X * tll.model + tll.t - tll.y)
+  # tll.objective = tll.loss
+  # tll.problem = minimize( tll.objective )
+end
 
 function tllsolve!(tll::TLLRegression, freevarname; verbose=0)
   fixvar_symbol = setdiff([:α,:β],[freevarname])[1]
@@ -67,31 +108,21 @@ function tllsolve!(tll::TLLRegression, freevarname; verbose=0)
   info("$freevarname is free: $(!(:fixed in freevar.sets))")
 
   fix!(fixvar)
-  Convex.solve!(tll.problem, ECOSSolver(verbose=verbose))
+  Convex.solve!(tll.problem, SCSSolver(verbose=verbose))
   free!(fixvar)
 
   info("after learning (status: $(tll.problem.status)) $(freevarname): $(freevar)")
 end
 
-function tllsolvefor_alpha!(tll::TLLRegression; verbose=0)
-  tll.model = (tll.P .* (tll.α.value * ones(1,size(tll.P,2)))) * tll.β
-  tll.problem = minimize( norm(tll.X * tll.model - tll.y) )
-  Convex.solve!(tll.problem, SCSSolver(verbose=verbose))
-end
-
-function tllsolvefor_beta!(tll::TLLRegression; verbose=0)
-  tll.model = (tll.P .* (tll.α * ones(1,size(tll.P,2)))) * tll.β.value
-  tll.problem = minimize( norm(tll.X * tll.model - tll.y) )
-  Convex.solve!(tll.problem, SCSSolver(verbose=verbose))
-end
-
-
 function tllsolve2!(tll::TLLRegression, freevarname; verbose=0)
   if(freevarname==:α)
-    tllsolvefor_alpha!(tll, verbose=verbose)
+    setmodel!(tll, tll.α, tll.β.value )
   else
-    tllsolvefor_beta!(tll, verbose=verbose)
+    setmodel!(tll, tll.α.value, tll.β )
   end
+
+  Convex.solve!(tll.problem, ECOSSolver(max_iters=1000000, verbose=verbose))
+  println("solving for $freevarname problem status: $(tll.problem.status)")
 end
 
 
@@ -122,39 +153,27 @@ function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; beta = r
 
   # FIXME: aggiungere termine noto
 
-  tll = TLLRegression(P, verbose=verbose)
+  tll = TLLRegression(P, X, y, verbose=verbose)
 
   M,K = size(tll)
 
   tll.α.value = rand(M)
   tll.β.value = beta
 
-  # termination criteria is guided by epsilon... when two iterations optvalue
-  # differ for a quantity δ that is less than epslon, we stop
-  ϵ = 0.001
-  δ = 1.0
-
-  previous_optval = 100
-  i=0
-  maxiterations = 5
-
-  # FIXME: The following two assignment do not belong here
-  tll.X = X
-  tll.y = y
-  tll.problem = minimize( norm(X * tll.model - y) )
+  maxiterations = 1000
+  i = 0
 
   while i < maxiterations
     info("Starting iteration n. $i")
-    tllsolve2!(tll, :α, verbose=verbose)
+    # tllsolve2!(tll, :α, verbose=verbose)
     tllsolve2!(tll, :β, verbose=verbose)
+    tllsolve2!(tll, :α, verbose=verbose)
 
-    δ = abs(previous_optval - optval(tll))
-    previous_optval = optval(tll)
-    info("Loss at iteration $i: $previous_optval")
+    info("Loss at iteration $i: $(evalloss(tll))")
+    info("Objective at iteration $i: $(evalobjective(tll))")
+    info("β at iteration $i: $(tll.β.value)")
     i+=1
   end
-
-  println( evaluate(X * tll.model - y) )
 
   return tll
 end
