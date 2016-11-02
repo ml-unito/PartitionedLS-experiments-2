@@ -1,130 +1,48 @@
 module TLLR
 
 using Convex
-using Logging
-using SCS
 using ECOS
 
 import Base.size
-export TLLRegression, fit, predict, alpha, beta, optval
-
+export fit, predict
 """
     type TLLRegression
 
 The type of Two Levels Linear Regression models.
 
 A TLLR model is a linear model has the form:
-  \$h(x) = \sum_k \beta_k f_{k}(x)\$
+  \$h(x) = \sum_k \beta_k f_{\beta_k}(x)\$
 
 where \$f_\beta(x)\$ are pseudo features built on the original \$x\$
 features:
   \$f_{\beta_k}(x) = \sum_{m: P_{m,k} = 1} \alpha_m x_m\$
+
+In this version \$\beta_k\$ are only used to maintain the sign associated
+to the block and the \$\alpha_m\$ are not constrained to sum to one
+blockwise.
+
 """
-type TLLRegression
-  α::Variable
-  β::Variable
-  t::Variable
 
-  model::AbstractExpr
-  problem::Problem
-  loss::AbstractExpr
-  objective::AbstractExpr
-  constraints::Array{Constraint,1}
-  regularization::AbstractExpr
-
-  P::Array{Int,2}
-  X::Array{Float64,2}
-  y::Array{Float64,1}
-
-  verbose::Int
-
-  function TLLRegression(P, X, y; verbose=0)
-    M, K = size(P)
-    tll = new()
-    tll.α = Variable(M)
-    tll.β = Variable(K)
-    tll.t = Variable()
-    tll.P = P
-    tll.X = X
-    tll.y = y
-    tll.verbose = verbose
-
-    setmodel!(tll, tll.α, tll.β)
-
-    tll
-  end
-end
-
-# tll.α.value is a matrix,
-function alpha(tll::TLLRegression)
-  tll.α.value[:,1]
-end
-
-function beta(tll::TLLRegression)
-  tll.β.value[:,1]
-end
-
-function size(tll::TLLRegression)
-  size(tll.P)
-end
-
-function evalloss(tll::TLLRegression)
-  evaluate(tll.loss)
-end
-
-function evalobjective(tll::TLLRegression)
-  evaluate(tll.objective)
-end
-
-optval(tll::TLLRegression) = tll.problem.optval
-
-function setmodel!(tll::TLLRegression, α, β)
-  tll.regularization =  0.0 * vecnorm(β,1)
-  if typeof(α) == Variable
-    tll.constraints = [α >= 0, sum(α' * tll.P, 1) == 1]
-  else
-    tll.constraints = []
+function indextobeta(b::Integer, K::Integer)
+  result::Array{Int64,1} = []
+  for k = 1:K
+    push!(result, 2(b % 2)-1)
+    b >>= 1
   end
 
-  tll.model = (tll.P .* (α * ones(1,size(tll.P,2)))) * β
-  tll.loss = norm(tll.X * tll.model + tll.t - tll.y)^2
-  tll.objective = tll.loss + tll.regularization
-  tll.problem = minimize(  tll.objective, tll.constraints )
-
-  # tll.β.value = ones(size(tll.β))
-  # tll.model = α
-  # tll.loss = norm(tll.X * tll.model + tll.t - tll.y)
-  # tll.objective = tll.loss
-  # tll.problem = minimize( tll.objective )
+  result
 end
 
-function tllsolve!(tll::TLLRegression, freevarname; verbose=0)
-  fixvar_symbol = setdiff([:α,:β],[freevarname])[1]
-  fixvar = getfield(tll, fixvar_symbol)
-  freevar = getfield(tll, freevarname)
-
-  info("solving for $freevarname")
-  info("before learning $freevarname: $(freevar.value)")
-  info("$freevarname is free: $(!(:fixed in freevar.sets))")
-
-  fix!(fixvar)
-  Convex.solve!(tll.problem, SCSSolver(verbose=verbose))
-  free!(fixvar)
-
-  info("after learning (status: $(tll.problem.status)) $(freevarname): $(freevar)")
-end
-
-function tllsolve2!(tll::TLLRegression, freevarname; verbose=0)
-  if(freevarname==:α)
-    setmodel!(tll, tll.α, tll.β.value )
-  else
-    setmodel!(tll, tll.α.value, tll.β )
+function indmin(mapfun, a)
+  result = 1
+  for i in 2:length(a)
+    if mapfun(a[i]) < mapfun(a[result])
+      result = i
+    end
   end
 
-  Convex.solve!(tll.problem, ECOSSolver(max_iters=1000000, verbose=verbose))
-  println("solving for $freevarname problem status: $(tll.problem.status)")
+  result
 end
-
 
 """
     fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; beta=randomvalues)
@@ -142,45 +60,36 @@ learnt model (`::TLLRegression`).
 * `beta`: Initial value for betas
 
 """
-function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; beta = rand(size(P,2)), verbose=0)
-
-  # Logging.configure(output=open("tllr.log", "a"), level=INFO)
-  Logging.configure(level=INFO)
+function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; verbose=0)
   info("------------ FIT ---------------")
 
   # row normalization
-  X = X ./ sum(X,2)
+  M,K = size(P)
 
-  # FIXME: aggiungere termine noto
+  results = []
 
-  tll = TLLRegression(P, X, y, verbose=verbose)
+  for b in 0:(2^K-1)
+    info("Starting iteration n. $b")
 
-  M,K = size(tll)
+    α = Variable(M, Positive())
+    t = Variable()
+    β = indextobeta(b,K)
 
-  tll.α.value = rand(M)
-  tll.β.value = beta
+    loss = norm(X * (P .* (α * ones(1,K))) * β + t - y)^2
+    regularization = 0.0 * norm(α,1)
+    p = minimize(loss + regularization)
+    Convex.solve!(p, ECOSSolver(verbose=verbose))
 
-  maxiterations = 1000
-  i = 0
-
-  while i < maxiterations
-    info("Starting iteration n. $i")
-    # tllsolve2!(tll, :α, verbose=verbose)
-    tllsolve2!(tll, :β, verbose=verbose)
-    tllsolve2!(tll, :α, verbose=verbose)
-
-    info("Loss at iteration $i: $(evalloss(tll))")
-    info("Objective at iteration $i: $(evalobjective(tll))")
-    info("β at iteration $i: $(tll.β.value)")
-    i+=1
+    println("optval: $(p.optval)")
+    push!(results,(p.optval, α.value, β, t.value, P))
   end
 
-  return tll
+  results[indmin(z -> z[1], results)]
 end
 
-function predict(tll::TLLRegression, X::Array{Float64,2})
-  X = X ./ sum(X,2)
-  return evaluate(X * tll.model)
+function predict(model, X::Array{Float64,2})
+  (_, α, β, t, P) = model
+  X*(P .* α) * β + t
 end
 
 end

@@ -1,10 +1,10 @@
 include("./TLLR.jl")
 
 
-using DataFrames
 using Gadfly
-using TLLR: fit, predict, alpha, beta, optval
+using TLLR: fit, predict
 using Convex
+using DataFrames
 
 # main
 
@@ -15,17 +15,14 @@ X = convert(Array, data[:, 2:83])
 y = convert(Array, data[:, :log_Ptol])
 P = convert(Array, blocks[:, 2:7])
 
-tll = fit(X, y, P, beta=[1,-1,1,-1,1,1], verbose=0)
-# tll = fit(X, y, P, verbose=0)
+tll = fit(X, y, P, verbose=0)
 
-α = alpha(tll)
-β = beta(tll)
-
-println( "loss: $(norm(predict(tll, X)-y))")
+objvalue, α, β, t, _ = tll
+println("objvalue: $objvalue")
+println("loss: $(norm(predict(tll, X) - y)^2)")
 println("α: $α")
 println("β: $β")
-
-println("sum cnstr: $(evaluate(sum(tll.α' * tll.P, 1)))")
+println("t: $t")
 
 if length(ARGS) == 1 && ARGS[1]=="-p"
   α_plot = plot( x=blocks[:Descriptor], y=round(α,6), Geom.bar, Theme(minor_label_font_size=3pt) )
