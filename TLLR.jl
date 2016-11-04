@@ -5,40 +5,20 @@ using ECOS
 
 import Base.size
 export fit, predict
-"""
-    type TLLRegression
-
-The type of Two Levels Linear Regression models.
-
-A TLLR model is a linear model has the form:
-  \$h(x) = \sum_k \beta_k f_{\beta_k}(x)\$
-
-where \$f_\beta(x)\$ are pseudo features built on the original \$x\$
-features:
-  \$f_{\beta_k}(x) = \sum_{m: P_{m,k} = 1} \alpha_m x_m\$
-
-In this version \$\beta_k\$ are only used to maintain the sign associated
-to the block and the \$\alpha_m\$ are not constrained to sum to one
-blockwise.
 
 """
+  indextobeta(b::Integer, K::Integer)::Array{Int64,1}
 
+  returns 2 * bin(b,K) - 1
+
+  where bin(b) is a vector of K elements containing the binary
+  representation of b.
+"""
 function indextobeta(b::Integer, K::Integer)
   result::Array{Int64,1} = []
   for k = 1:K
     push!(result, 2(b % 2)-1)
     b >>= 1
-  end
-
-  result
-end
-
-function indmin(mapfun, a)
-  result = 1
-  for i in 2:length(a)
-    if mapfun(a[i]) < mapfun(a[result])
-      result = i
-    end
   end
 
   result
@@ -61,35 +41,45 @@ learnt model (`::TLLRegression`).
 
 """
 function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; verbose=0)
-  info("------------ FIT ---------------")
-
   # row normalization
   M,K = size(P)
 
   results = []
 
   for b in 0:(2^K-1)
-    info("Starting iteration n. $b")
-
     α = Variable(M, Positive())
     t = Variable()
     β = indextobeta(b,K)
 
     loss = norm(X * (P .* (α * ones(1,K))) * β + t - y)^2
-    regularization = 0.0 * norm(α,1)
+    regularization = 10.0 * norm(α,2)
     p = minimize(loss + regularization)
     Convex.solve!(p, ECOSSolver(verbose=verbose))
 
-    println("optval: $(p.optval)")
+    info("iteration $b optval: $(p.optval)")
     push!(results,(p.optval, α.value, β, t.value, P))
   end
 
-  results[indmin(z -> z[1], results)]
+  optindex = indmin((z -> z[1]).(results))
+  opt,a,b,t,_ = results[optindex]
+
+
+  A = sum(P .* a, 1)
+  a = sum((P .* a) ./ A, 2)
+  b = b .* A'
+
+  (opt, a, b, t, P)
 end
 
+
+"""
+  predict(model::Tuple, X::Array{Float64,2})
+
+  returns the predictions of the given model on examples in X
+"""
 function predict(model, X::Array{Float64,2})
   (_, α, β, t, P) = model
-  X*(P .* α) * β + t
+  X * (P .* α) * β + t
 end
 
 end
