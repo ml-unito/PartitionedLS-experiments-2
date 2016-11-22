@@ -1,4 +1,4 @@
-include("./TLLR.jl")
+include("../TLLR.jl")
 
 using Gadfly
 using TLLR: fit, predict

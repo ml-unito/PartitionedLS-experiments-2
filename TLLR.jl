@@ -40,7 +40,7 @@ learnt model (`::TLLRegression`).
 * `beta`: Initial value for betas
 
 """
-function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; verbose=0)
+function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; verbose=0, η=1)
   # row normalization
   M,K = size(P)
 
@@ -52,7 +52,7 @@ function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; verbose=
     β = indextobeta(b,K)
 
     loss = norm(X * (P .* (α * ones(1,K))) * β + t - y)^2
-    regularization = 10.0 * norm(α,2)
+    regularization = η * norm(α,2)
     p = minimize(loss + regularization)
     Convex.solve!(p, ECOSSolver(verbose=verbose))
 
