@@ -10,7 +10,7 @@ using DataFrames
 ds_train = readtable("exp2/esempio2_train.csv", separator=';')
 ds_test = readtable("exp2/esempio2_test.csv", separator=';')
 blocks = readtable("exp2/LogPTol_vsPlusDescr_blocks.csv", separator=';')
-blocks_colnames = blocks[:,1]
+blocks_colnames = blocks[:Descriptor]
 ds_colnames = string.(ds_train.colindex.names)
 colindices = indexin(blocks_colnames, ds_colnames)
 
@@ -34,15 +34,18 @@ test_loss = norm(yte_ttlr - yte)^2   # η:1 -> 46.1, η:20 -> 42.1, η:0 -> 52.8
 pls_loss = norm(ypls -yte)^2
 println("loss: $(test_loss)")
 
-writetable("exp2/y_test_ttlr.csv", DataFrame(yttlr))
-writetable("exp2/y_train_ttlr.csv", DataFrame(yttlr))
+writetable("exp2/y_test_ttlr.csv", DataFrame(yte_ttlr))
+writetable("exp2/y_train_ttlr.csv", DataFrame(ytr_ttlr))
 
 
 # if length(ARGS) == 1 && ARGS[1]=="-p"
-α_plot = plot( x=blocks[:Descriptor], y=round(α,6), Geom.bar, Theme(minor_label_font_size=3pt) )
-draw( SVG("exp2/alpha_plot.svg", 14cm, 10cm), α_plot)
+for name in names(blocks)[2:7]
+  α_k = α[find(blocks[Symbol(name)])]
+  α_k_names = blocks[:Descriptor][find(blocks[Symbol(name)])]
+  α_plot = plot( x=α_k_names, y=round(α_k,6), Geom.bar, Theme(minor_label_font_size=3pt) )
+  draw( SVG(string("exp2/alpha_plot",name,".svg"), 14cm, 10cm), α_plot)
+end
 
 β_plot = plot( x=names(blocks)[2:7], y=β, Geom.bar )
-
 draw( SVG("exp2/beta_plot.svg", 14cm, 10cm), β_plot)
 # end

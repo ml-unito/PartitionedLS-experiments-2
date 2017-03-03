@@ -11,7 +11,7 @@ export fit, predict
 
   returns 2 * bin(b,K) - 1
 
-  where bin(b) is a vector of K elements containing the binary
+  where bin(b,K) is a vector of K elements containing the binary
   representation of b.
 """
 function indextobeta(b::Integer, K::Integer)
