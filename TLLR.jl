@@ -5,6 +5,7 @@ using ECOS
 
 import Base.size
 export fit, predict
+using LinearAlgebra
 
 """
   indextobeta(b::Integer, K::Integer)::Array{Int64,1}
@@ -64,21 +65,21 @@ function fit(X::Array{Float64,2}, y::Array{Float64,1}, P::Array{Int,2}; verbose=
     t = Variable()
     β = indextobeta(b,K)
 
-    loss = norm(X * (P .* (α * ones(1,K))) * β + t - y)^2
+    loss = sumsquares(X * (P .* (α * ones(1,K))) * β + t - y)
     regularization = η * norm(α,2)
     p = minimize(loss + regularization)
     Convex.solve!(p, ECOSSolver(verbose=verbose))
 
-    info("iteration $b optval: $(p.optval)")
+    println("iteration $b optval: $(p.optval)")
     push!(results,(p.optval, α.value, β, t.value, P))
   end
 
-  optindex = indmin((z -> z[1]).(results))
+  optindex = argmin((z -> z[1]).(results))
   opt,a,b,t,_ = results[optindex]
 
 
-  A = sum(P .* a, 1)
-  a = sum((P .* a) ./ A, 2)
+  A = sum(P .* a, dims=1)
+  a = sum((P .* a) ./ A, dims=2)
   b = b .* A'
 
   (opt, a, b, t, P)
@@ -96,7 +97,7 @@ end
 """
 function predict(model, X::Array{Float64,2})
   (_, α, β, t, P) = model
-  X * (P .* α) * β + t
+  X * (P .* α) * β .+ t
 end
 
 end

@@ -6,9 +6,9 @@ data = readtable("LogPTol_vsPlusDescr.csv", separator=';')
 blocks = readtable("LogPTol_vsPlusDescr_blocks.csv", separator=';')
 
 
-X = convert(Array, data[:, 2:83])
-y = convert(Array, data[:, :log_Ptol])
-P = convert(Array, blocks[:, 2:7])
+X = convert(Matrix, data[:, 2:83])
+y = convert(Matrix, data[:, :log_Ptol])
+P = convert(Matrix, blocks[:, 2:7])
 
 M,K = size(P)
 α = Variable(M)

@@ -1,24 +1,25 @@
-include("../TLLR.jl")
+push!(LOAD_PATH, ".")
 
 # using Gadfly
 using TLLR: fit, predict
 using Convex
 using DataFrames
+using CSV
 
 # main
 
-ds_train = readtable("exp2/esempio2_train.csv", separator=';')
-ds_test = readtable("exp2/esempio2_test.csv", separator=';')
-blocks = readtable("exp2/LogPTol_vsPlusDescr_blocks.csv", separator=';')
+ds_train = CSV.read("exp2/esempio2_train.csv", delim=';')
+ds_test = CSV.read("exp2/esempio2_test.csv", delim=';')
+blocks = CSV.read("exp2/LogPTol_vsPlusDescr_blocks.csv", delim=';')
 blocks_colnames = blocks[:Descriptor]
-ds_colnames = string.(ds_train.colindex.names)
+ds_colnames = string.(names(ds_train))
 colindices = indexin(blocks_colnames, ds_colnames)
 
 
-Xtr = convert(Array{Float64,2}, ds_train[:, colindices])
-Xte = convert(Array{Float64,2}, ds_test[:, colindices])
-ytr = convert(Array{Float64,1}, ds_train[:, :Log_Ptol])
-yte = convert(Array{Float64,1}, ds_test[:, :Log_Ptol])
+Xtr = convert(Matrix{Float64}, ds_train[:, colindices])
+Xte = convert(Matrix{Float64}, ds_test[:, colindices])
+ytr = convert(Array{Float64}, ds_train[:, :Log_Ptol])
+yte = convert(Array{Float64}, ds_test[:, :Log_Ptol])
 P = convert(Array, blocks[:, 2:7])
 
 tll = fit(Xtr, ytr, P, verbose=0, η=10)
@@ -34,8 +35,8 @@ test_loss = norm(yte_ttlr - yte)^2   # η:1 -> 46.1, η:20 -> 42.1, η:0 -> 52.8
 pls_loss = norm(ypls -yte)^2
 println("loss: $(test_loss)")
 
-writetable("exp2/y_test_ttlr.csv", DataFrame(yte_ttlr))
-writetable("exp2/y_train_ttlr.csv", DataFrame(ytr_ttlr))
+CSV.write("exp2/y_test_ttlr.csv", DataFrame(yte_ttlr))
+CSV.write("exp2/y_train_ttlr.csv", DataFrame(ytr_ttlr))
 
 
 # if length(ARGS) == 1 && ARGS[1]=="-p"
