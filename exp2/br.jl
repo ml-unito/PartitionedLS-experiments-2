@@ -2,6 +2,7 @@
 using TLLR: fit, predict
 using DataFrames
 using CSV
+using LinearAlgebra
 
 # main
 
