@@ -1,6 +1,6 @@
 include("../TLLR.jl")
 
-using Gadfly
+# using Gadfly
 using TLLR: fit, predict
 using Convex
 using DataFrames
@@ -39,13 +39,13 @@ writetable("exp2/y_train_ttlr.csv", DataFrame(ytr_ttlr))
 
 
 # if length(ARGS) == 1 && ARGS[1]=="-p"
-for name in names(blocks)[2:7]
-  α_k = α[find(blocks[Symbol(name)])]
-  α_k_names = blocks[:Descriptor][find(blocks[Symbol(name)])]
-  α_plot = plot( x=α_k_names, y=round(α_k,6), Geom.bar, Theme(minor_label_font_size=3pt) )
-  draw( SVG(string("exp2/alpha_plot",name,".svg"), 14cm, 10cm), α_plot)
-end
+# for name in names(blocks)[2:7]
+#   α_k = α[find(blocks[Symbol(name)])]
+#   α_k_names = blocks[:Descriptor][find(blocks[Symbol(name)])]
+#   α_plot = plot( x=α_k_names, y=round(α_k,6), Geom.bar, Theme(minor_label_font_size=3pt) )
+#   draw( SVG(string("exp2/alpha_plot",name,".svg"), 14cm, 10cm), α_plot)
+# end
 
-β_plot = plot( x=names(blocks)[2:7], y=β, Geom.bar )
-draw( SVG("exp2/beta_plot.svg", 14cm, 10cm), β_plot)
+# β_plot = plot( x=names(blocks)[2:7], y=β, Geom.bar )
+# draw( SVG("exp2/beta_plot.svg", 14cm, 10cm), β_plot)
 # end

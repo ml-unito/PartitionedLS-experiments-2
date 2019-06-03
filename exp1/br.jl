@@ -1,6 +1,6 @@
 include("../TLLR.jl")
 
-using Gadfly
+# using Gadfly
 using TLLR: fit, predict
 using Convex
 using DataFrames
@@ -31,10 +31,10 @@ end
 
 println("t: $t")
 
-# if length(ARGS) == 1 && ARGS[1]=="-p"
-α_plot = plot( x=blocks[:Descriptor], y=round(α,6), Geom.bar, Theme(minor_label_font_size=3pt) )
-  # draw( SVG("alpha_plot.svg", 14cm, 10cm), α_plot)
+# # if length(ARGS) == 1 && ARGS[1]=="-p"
+# α_plot = plot( x=blocks[:Descriptor], y=round(α,6), Geom.bar, Theme(minor_label_font_size=3pt) )
+#   # draw( SVG("alpha_plot.svg", 14cm, 10cm), α_plot)
 
-β_plot = plot( x=names(blocks)[2:7], y=β, Geom.bar )
-  # draw( SVG("beta_plot.svg", 14cm, 10cm), β_plot)
-# end
+# β_plot = plot( x=names(blocks)[2:7], y=β, Geom.bar )
+#   # draw( SVG("beta_plot.svg", 14cm, 10cm), β_plot)
+# # end
