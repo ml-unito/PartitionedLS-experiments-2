@@ -46,7 +46,7 @@ A tuple of the form: `(opt, a, b, t, P)`
 
 * `opt`: optimal value of the objective function (loss + regularization)
 * `a`: values of the α variables at the optimal point
-* `b`: values of the β variables at the optimial point
+* `b`: values of the β variables at the optimal point
 * `t`: the intercept at the optimal point
 * `P`: the partition matrix (copied from the input)
 
