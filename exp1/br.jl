@@ -1,20 +1,22 @@
-include("../TLLR.jl")
+push!(LOAD_PATH, ".")
 
 # using Gadfly
 using TLLR: fit, predict
 using Convex
 using DataFrames
+using CSV
+using Printf
 
 # main
 
-data = readtable("LogPTol_vsPlusDescr.csv", separator=';')
-blocks = readtable("LogPTol_vsPlusDescr_blocks.csv", separator=';')
+data = CSV.read("exp1/LogPTol_vsPlusDescr.csv", delim=';')
+blocks = CSV.read("exp1/LogPTol_vsPlusDescr_blocks.csv", delim=';')
 
-Xtr = convert(Array, data[1:30, 2:83])
-Xte = convert(Array, data[31:end, 2:83])
+Xtr = convert(Matrix, data[1:30, 2:83])
+Xte = convert(Matrix, data[31:end, 2:83])
 ytr = convert(Array, data[1:30, :log_Ptol])
 yte = convert(Array, data[31:end, :log_Ptol])
-P = convert(Array, blocks[:, 2:7])
+P = convert(Matrix, blocks[:, 2:7])
 
 tll = fit(Xtr, ytr, P, verbose=0)
 
