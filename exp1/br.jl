@@ -1,8 +1,5 @@
-push!(LOAD_PATH, ".")
-
 # using Gadfly
 using TLLR: fit, predict
-using Convex
 using DataFrames
 using CSV
 using Printf
