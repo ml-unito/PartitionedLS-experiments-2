@@ -18,7 +18,7 @@ Xtr = convert(Matrix{Float64}, ds_train[:, colindices])
 Xte = convert(Matrix{Float64}, ds_test[:, colindices])
 ytr = convert(Array{Float64}, ds_train[:, :Log_Ptol])
 yte = convert(Array{Float64}, ds_test[:, :Log_Ptol])
-P = convert(Array, blocks[:, 2:7])
+P = convert(Matrix, blocks[:, 2:7])
 
 tll = fit(Xtr, ytr, P, verbose=0, η=10)
 

@@ -3,6 +3,7 @@ using TLLR: fit, predict
 using DataFrames
 using CSV
 using Printf
+using LinearAlgebra
 
 # main
 
