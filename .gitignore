@@ -1,2 +1,2 @@
-ampl.macosx64/*
-.ipynb_checkpoints/*
+*.svg
+*.jld

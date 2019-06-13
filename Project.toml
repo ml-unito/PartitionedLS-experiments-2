@@ -1,3 +1,7 @@
 [deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 Convex = "f65535da-76fb-5f13-bab9-19810c17039a"
+Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
+JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
+PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 TLLR = "19f41c5e-8610-11e9-2f2a-0d67e7c5027f"
