@@ -18,9 +18,22 @@ ytr = convert(Array, data[1:30, :log_Ptol])
 yte = convert(Array, data[31:end, :log_Ptol])
 P = convert(Matrix, blocks[:, 2:7])
 
+df = DataFrame(
+    Time = Float64[],
+    TimeCumulative = Float64[],
+    Objective = Float64[],
+    Best = Float64[]
+)
+
+
+# Warming up julia environment
+_ = fit(Xtr, ytr, P, verbose=0, η=1.0)
+
 @info "Fitting the model"
-tll = fit(Xtr, ytr, P, verbose=0, η=1.0)
+tll, time, _ = @timed  fit(Xtr, ytr, P, verbose=0, η=1.0)
 objvalue, α, β, t, _ = tll
+
+push!(df, [time, time, objvalue, objvalue])
 
 @info "objvalue: $objvalue"
 @info "loss:" norm(predict(tll, Xte) - yte)^2
@@ -28,7 +41,7 @@ objvalue, α, β, t, _ = tll
 @info "Saving variables" α β t
 save("exp1/br_vars.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
 
-
+CSV.write("ils-b_results.csv", df)
 
 # for i=1:82
 #   @printf("α: %2.4f\n",α[i])

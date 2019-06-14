@@ -20,12 +20,31 @@ P = convert(Matrix, blocks[:, 2:7])
 
 @info "Fitting the model"
 
+df = DataFrame(
+    Time = Float64[],
+    TimeCumulative = Float64[],
+    Objective = Float64[],
+    Best = Float64[]
+)
+
 results = []
+best_objective = Inf64
+cumulative_time = 0.0
+
+# this is needed to avoid measuring time needed by julia to setup things for this
+# function
+_ = fit_iterative(Xtr, ytr, P, verbose=0, η=1.0)
+
 for i in 1:100
-    fitted_params = fit_iterative(Xtr, ytr, P, verbose=0, η=1.0)
+    global best_objective, cumulative_time
+    fitted_params, time, _ = @timed fit_iterative(Xtr, ytr, P, verbose=0, η=1.0)
     objvalue, α, β, t, _ = fitted_params
 
-    @info i=i objvalue=objvalue
+    cumulative_time += time
+
+    best_objective = min(best_objective, objvalue)
+    @info time=time i=i objvalue=objvalue
+    push!(df, [time,cumulative_time, objvalue, best_objective])
     push!(results, fitted_params)
 end
 
@@ -45,6 +64,9 @@ objvalue, α, β, t, _ = results[best_i]
 
 @info "Saving results"
 save("exp1/iterative__vars.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
+
+print(df)
+CSV.write("iterative_results.csv", df)
 
 
 # # for i=1:82
