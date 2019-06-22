@@ -1,21 +1,26 @@
 # Block Least Squares
 
-This is julia program implementing the block least squares method and experiment with it.
+This repository contains the code to replicate experiments on the PartitioningLS model. 
 
-# To install
+## Setup you environment
 
-Clone this project as usual, then initialize the PartitionedLS submodule using:
-
-```bash
-git submodule init
-git submodule update
-```
-
-# Launching the sample experiments
-
-Use, for instance:
+Update the Julia packages by running:
 
 ```bash
-julia --project=. --color=yes exp2/br.jl
+julia --project=. --color=yes -e 'using Pkg; Pkg.update()'
 ```
 
+## Launch the expderiments using the optimal algorithm
+
+
+```bash
+julia --project=. --color=yes exp1/PartitioningLS-optimal.jl
+```
+
+
+## Launch the expderiments using the alternating LS algorithm
+
+
+```bash
+julia --project=. --color=yes exp1/PartitioningLS-alternating.jl
+```
