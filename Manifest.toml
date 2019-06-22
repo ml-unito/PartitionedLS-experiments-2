@@ -187,9 +187,9 @@ version = "0.20.0"
 
 [[DocStringExtensions]]
 deps = ["LibGit2", "Markdown", "Pkg", "Test"]
-git-tree-sha1 = "4d30e889c9f106a51ffa4791a88ffd4765bf20c3"
+git-tree-sha1 = "0513f1a8991e9d83255e0140aace0d0fc4486600"
 uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
-version = "0.7.0"
+version = "0.8.0"
 
 [[ECOS]]
 deps = ["BinaryProvider", "Compat", "Libdl", "MathOptInterface", "MathProgBase"]
@@ -440,6 +440,14 @@ git-tree-sha1 = "70bdbfb2bceabb15345c0b54be4544813b3444e4"
 uuid = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 version = "0.10.3"
 
+[[PartitionedLS]]
+deps = ["Convex", "ECOS", "LinearAlgebra"]
+git-tree-sha1 = "650ee0ba8b57c3a7f946b11326e49ce4736de5d9"
+repo-rev = "master"
+repo-url = "git@github.com:ml-unito/PartitionedLS.git"
+uuid = "19f41c5e-8610-11e9-2f2a-0d67e7c5027f"
+version = "0.4.8"
+
 [[Pkg]]
 deps = ["Dates", "LibGit2", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
@@ -556,14 +564,6 @@ version = "0.8.0"
 [[SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
-
-[[PartitionedLS]]
-deps = ["Convex", "ECOS", "LinearAlgebra"]
-git-tree-sha1 = "a9e014218255673234df6297bf11b4585506ceca"
-repo-rev = "master"
-repo-url = "git@github.com:ml-unito/PartitionedLS.git"
-uuid = "19f41c5e-8610-11e9-2f2a-0d67e7c5027f"
-version = "0.4.8"
 
 [[Test]]
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]

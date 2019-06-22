@@ -38,27 +38,8 @@ push!(df, [time, time, objvalue, objvalue])
 @info "objvalue: $objvalue"
 @info "loss:" norm(predict(tll, Xte) - yte)^2
 
-@info "Saving variables" α β t
-save("exp1/br_vars.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
+@info "Saving variables into file ./br_vars.jld" α β t
+save("./br_vars.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
 
-CSV.write("ils-b_results.csv", df)
-
-# for i=1:82
-#   @printf("α: %2.4f\n",α[i])
-# end
-# 
-# for i=1:6
-#   @printf("β: %2.4f\n", β[i])
-# end
-# 
-# println("t: $t")
-
-# if length(ARGS) == 1 && ARGS[1]=="-p"
-# @info "Wriging α plot"
-# α_plot = plot( x=blocks[:Descriptor], y=round.(α,digits=6), Geom.bar, Theme(minor_label_font_size=3pt) )
-# draw( SVG("alpha_plot.svg", 14cm, 10cm), α_plot)
-
-# @info "Wrigin β plot" 
-# β_plot = plot( x=names(blocks)[2:7], y=β, Geom.bar )
-# draw( SVG("beta_plot.svg", 14cm, 10cm), β_plot)
-# end
+@info "Saving performances into ./pls-b-results.csv"
+CSV.write("./pls-b-results.csv", df)
