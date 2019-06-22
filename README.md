@@ -14,7 +14,7 @@ julia --project=. --color=yes -e 'using Pkg; Pkg.update()'
 
 
 ```bash
-julia --project=. --color=yes exp1/PartitioningLS-optimal.jl
+julia --project=. --color=yes exp1/PartitionedLS-optimal.jl
 ```
 
 
@@ -22,5 +22,5 @@ julia --project=. --color=yes exp1/PartitioningLS-optimal.jl
 
 
 ```bash
-julia --project=. --color=yes exp1/PartitioningLS-alternating.jl
+julia --project=. --color=yes exp1/PartitionedLS-alternating.jl
 ```
