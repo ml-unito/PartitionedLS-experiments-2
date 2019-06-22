@@ -1,4 +1,4 @@
-using TLLR: fit, predict
+using PartitionedLS: fit, predict
 using DataFrames
 using CSV
 using Printf

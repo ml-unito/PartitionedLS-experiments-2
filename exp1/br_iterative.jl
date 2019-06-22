@@ -1,5 +1,5 @@
 # using Gadfly
-using TLLR: fit_iterative, fit_iterative_slow, predict
+using PartitionedLS: fit_iterative, fit_iterative_slow, predict
 using DataFrames
 using CSV
 using LinearAlgebra
@@ -37,7 +37,7 @@ _ = fit_iterative(Xtr, ytr, P, verbose=0, η=1.0)
 
 for i in 1:100
     global best_objective, cumulative_time
-    fitted_params, time, _ = @timed fit_iterative(Xtr, ytr, P, verbose=0, η=1.0)
+    fitted_params, time, _ = @timed fit_iterative(Xtr, ytr, P, verbose=0, η=1.0; N=100)
     objvalue, α, β, t, _ = fitted_params
 
     cumulative_time += time

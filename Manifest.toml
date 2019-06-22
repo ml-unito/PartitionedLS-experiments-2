@@ -125,11 +125,11 @@ version = "0.5.1"
 
 [[Convex]]
 deps = ["LinearAlgebra", "MathProgBase", "OrderedCollections", "SparseArrays"]
-git-tree-sha1 = "cdaaeb042a6930e2d65c6d35f8a296bdbdbb74fc"
+git-tree-sha1 = "2c25afcd0c1dfc76d3257d5e40346ec9b43f3fdd"
 repo-rev = "master"
 repo-url = "https://github.com/JuliaOpt/Convex.jl.git"
 uuid = "f65535da-76fb-5f13-bab9-19810c17039a"
-version = "0.12.1"
+version = "0.12.2"
 
 [[CoupledFields]]
 deps = ["Compat", "StatsBase"]
@@ -429,10 +429,10 @@ uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
 version = "0.9.7"
 
 [[PackageCompiler]]
-deps = ["ArgParse", "Libdl", "Pkg", "REPL", "Serialization", "Test", "UUIDs", "WinRPM"]
-git-tree-sha1 = "3db96de5bc51934d50872b1122f3ebe258a5b4f2"
+deps = ["Libdl", "Pkg", "REPL", "Serialization", "UUIDs", "WinRPM"]
+git-tree-sha1 = "0b5dccd6520dd7072d1d2a7fb22501a98f42e691"
 uuid = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
-version = "0.6.3"
+version = "0.6.4"
 
 [[Parameters]]
 deps = ["Markdown", "OrderedCollections", "REPL", "Test"]
@@ -557,13 +557,13 @@ version = "0.8.0"
 deps = ["Libdl", "LinearAlgebra", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 
-[[TLLR]]
+[[PartitionedLS]]
 deps = ["Convex", "ECOS", "LinearAlgebra"]
-git-tree-sha1 = "fd59a3bb9da741383ff6c32ed8ce1876b12eb2cd"
+git-tree-sha1 = "a9e014218255673234df6297bf11b4585506ceca"
 repo-rev = "master"
-repo-url = "git@github.com:ml-unito/TLLR.git"
+repo-url = "git@github.com:ml-unito/PartitionedLS.git"
 uuid = "19f41c5e-8610-11e9-2f2a-0d67e7c5027f"
-version = "0.4.6"
+version = "0.4.8"
 
 [[Test]]
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]

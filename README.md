@@ -4,7 +4,7 @@ This is julia program implementing the block least squares method and experiment
 
 # To install
 
-Clone this project as usual, then initialize the TLLR submodule using:
+Clone this project as usual, then initialize the PartitionedLS submodule using:
 
 ```bash
 git submodule init
