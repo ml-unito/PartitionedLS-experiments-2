@@ -26,7 +26,8 @@ df = DataFrame(
 )
 
 
-# Warming up julia environment
+# Warming up julia environment (avoids counting the time julia needs to compile the function
+# when we time the algorithm execution on the next few lines)
 _ = fit(Xtr, ytr, P, verbose=0, η=1.0)
 
 @info "Fitting the model"

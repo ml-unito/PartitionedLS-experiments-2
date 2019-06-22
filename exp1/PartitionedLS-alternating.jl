@@ -31,8 +31,8 @@ results = []
 best_objective = Inf64
 cumulative_time = 0.0
 
-# this is needed to avoid measuring time needed by julia to setup things for this
-# function
+# Warming up julia environment (avoids counting the time julia needs to compile the function
+# when we time the algorithm execution in the next loop)
 _ = fit_iterative(Xtr, ytr, P, verbose=0, η=1.0)
 
 for i in 1:100
