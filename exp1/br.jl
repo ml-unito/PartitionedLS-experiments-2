@@ -38,8 +38,8 @@ push!(df, [time, time, objvalue, objvalue])
 @info "objvalue: $objvalue"
 @info "loss:" norm(predict(tll, Xte) - yte)^2
 
-@info "Saving variables into file ./br_vars.jld" α β t
-save("./br_vars.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
+@info "Saving variables into file ./PartialLS-optimal-vars.jld" α β t
+save("./PartialLS-optimal-vars.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
 
-@info "Saving performances into ./pls-b-results.csv"
-CSV.write("./pls-b-results.csv", df)
+@info "Saving performances into ./PartialLS-optimal-results.csv"
+CSV.write("./PartialLS-optimal-results.csv", df)
