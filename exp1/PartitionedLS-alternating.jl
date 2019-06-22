@@ -62,10 +62,10 @@ objvalue, α, β, t, _ = results[best_i]
 @info "objvalue: $objvalue"
 @info "loss:" norm(predict(results[best_i], Xte) - yte)^2
 
-@info "Saving optimal values of α β t and objvalue to ./PartialLS-alternating-vars.jld"
-save("./PartialLS-alternating-vars.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
+@info "Saving optimal values of α β t and objvalue to ./PartitionedLS-alternating-vars.jld"
+save("./PartitionedLS-alternating-vars.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
 
 print(df)
 
-@info "Saving performances to ./PartialLS-alternating-results.csv"
-CSV.write("./PartialLS-alternating-results.csv", df)
+@info "Saving performances to ./PartitionedLS-alternating-results.csv"
+CSV.write("./PartitionedLS-alternating-results.csv", df)
