@@ -1,5 +1,5 @@
 # using Gadfly
-using PartitionedLS: fit_iterative, fit_iterative_slow, predict
+using PartitionedLS: fit_alternating, fit_alternating_slow, predict
 using DataFrames
 using CSV
 using LinearAlgebra
@@ -33,11 +33,11 @@ cumulative_time = 0.0
 
 # Warming up julia environment (avoids counting the time julia needs to compile the function
 # when we time the algorithm execution in the next loop)
-_ = fit_iterative(Xtr, ytr, P, verbose=0, η=1.0)
+_ = fit_alternating(Xtr, ytr, P, verbose=0, η=1.0)
 
 for i in 1:100
     global best_objective, cumulative_time
-    fitted_params, time, _ = @timed fit_iterative(Xtr, ytr, P, verbose=0, η=1.0; N=100)
+    fitted_params, time, _ = @timed fit_alternating(Xtr, ytr, P, verbose=0, η=1.0; N=100)
     objvalue, α, β, t, _ = fitted_params
 
     cumulative_time += time

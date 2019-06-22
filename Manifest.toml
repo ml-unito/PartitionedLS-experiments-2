@@ -442,7 +442,7 @@ version = "0.10.3"
 
 [[PartitionedLS]]
 deps = ["Convex", "ECOS", "LinearAlgebra"]
-git-tree-sha1 = "650ee0ba8b57c3a7f946b11326e49ce4736de5d9"
+git-tree-sha1 = "c69a82879c744813245d0ea8581fd6b0612f3017"
 repo-rev = "master"
 repo-url = "git@github.com:ml-unito/PartitionedLS.git"
 uuid = "19f41c5e-8610-11e9-2f2a-0d67e7c5027f"
