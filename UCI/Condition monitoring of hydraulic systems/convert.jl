@@ -13,13 +13,17 @@ function add_block(blocks, cols, pos)
 end
 
 function load_X()
-    files = ["PS3", "TS3",
-        "CP"  , "PS4", "TS4",
-        "EPS1", "PS5", "VS1",
-        "FS1" , "PS6",           
-        "FS2" , "SE",            
-        "PS1" , "TS1",           
-        "PS2" , "TS2"]
+    # files = ["PS3", "TS3",
+    #     "CP"  , "PS4", "TS4",
+    #     "EPS1", "PS5", "VS1",
+    #     "FS1" , "PS6",           
+    #     "FS2" , "SE",            
+    #     "PS1" , "TS1",           
+    #     "PS2" , "TS2"]
+
+    files = [
+        "PS1", "PS2", "EPS1", "FS1", "FS2", "TS1", "TS2", "VS1", "CE", "CP", "SE"]
+
 
     @info "Reading CE.txt\n"
     blocks = DataFrame(Descriptor = String[], 
