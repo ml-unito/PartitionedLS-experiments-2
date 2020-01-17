@@ -1,6 +1,11 @@
 {
     "train_start": 1,
-    "train_end": 50000,
+    "train_end": 1000,
     "test_start":463716,
-    "test_end":473715
+    "test_end":473715,
+    "ALT": {
+        "exp_name": "N_10",
+        "num_retrials": 10,
+        "num_alternations": 10
+    }
 }

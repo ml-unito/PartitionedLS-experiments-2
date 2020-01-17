@@ -7,7 +7,6 @@ using DelimitedFiles
 function add_block(blocks, cols, pos)
     for col in cols
         new_row = vcat([string(col)], [0 for i in 1:(pos-1)], 1, [0 for i in (pos+1):(ncol(blocks)-1)])
-        @info new_row
         push!(blocks, new_row)
     end
 
