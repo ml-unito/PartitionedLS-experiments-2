@@ -43,8 +43,8 @@ df = DataFrame(
 
 # Warming up julia environment (avoids counting the time julia needs to compile the function
 # when we time the algorithm execution on the next few lines)
-@info "Warming up..."
-_ = fit(Xtr, ytr, P, verbose=1, η=1.0)
+# @info "Warming up..."
+# _ = fit(Xtr, ytr, P, verbose=1, η=1.0)
 
 @info "Fitting the model"
 tll, time, _ = @timed  fit(Xtr, ytr, P, verbose=0, η=1.0)
