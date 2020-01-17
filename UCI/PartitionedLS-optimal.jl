@@ -30,7 +30,7 @@ end
 # main
 
 
-dir = "Condition monitoring of hydraulic systems"
+dir = ARGS[1]
 Xtr, Xte, ytr, yte, P = load_data(dir)
 
 df = DataFrame(
@@ -40,14 +40,13 @@ df = DataFrame(
     Best = Float64[]
 )
 
-
 # Warming up julia environment (avoids counting the time julia needs to compile the function
 # when we time the algorithm execution on the next few lines)
 # @info "Warming up..."
 # _ = fit(Xtr, ytr, P, verbose=1, η=1.0)
 
 @info "Fitting the model"
-tll, time, _ = @timed  fit(Xtr, ytr, P, verbose=0, η=1.0)
+tll, time, _ = @timed  fit(Xtr, ytr, P, verbose=1, η=1.0)
 objvalue, α, β, t, _ = tll
 
 push!(df, [time, time, objvalue, objvalue])
