@@ -2,7 +2,7 @@ using DataFrames
 using CSV
 using DelimitedFiles
 
-const global MAX_COLS_PER_BLOCK = 100
+const global MAX_COLS_PER_BLOCK = 30
 
 function add_block(blocks, cols, pos)
     for col in cols
@@ -43,7 +43,7 @@ function load_X()
 
     df = CSV.read("CE.txt", header=map(x -> string("CE",x), 1:60))
     df = df[:, 1:min(ncol(df), MAX_COLS_PER_BLOCK)]
-    cols = ["CE-$i" for i in 1:60]
+    cols = ["CE-$i" for i in 1:min(ncol(df), MAX_COLS_PER_BLOCK)]
     
     cur_block = add_block(blocks, cols, 1)
 
@@ -54,9 +54,9 @@ function load_X()
 
         all_cols = ["$file-$i" for i in 1:ncol(tmpdf)]
         filtered_cols = ["$file-$i" for i in 1:num_cols]
+
         rename!(tmpdf, [Symbol(c) for c in all_cols])
         df = hcat(df, tmpdf[:, 1:num_cols])
-
 
         cur_block = add_block(blocks, filtered_cols, cur_block)
     end
@@ -64,6 +64,7 @@ function load_X()
     @info "Reading profile.txt\n"
     dfy = CSV.read("profile.txt", header=["1", "2", "3", "y", "4"])
     df = hcat(df, select(dfy, :y))
+
 
     return df, blocks
 end
