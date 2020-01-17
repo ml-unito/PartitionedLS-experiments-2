@@ -1,0 +1,6 @@
+{
+    "train_start": 1,
+    "train_end": 50000,
+    "test_start":463716,
+    "test_end":473715
+}

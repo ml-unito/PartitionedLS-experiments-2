@@ -4,6 +4,27 @@ using CSV
 using Printf
 using LinearAlgebra
 using JLD
+using JSON
+
+function read_train_conf(dir, data)
+    json_path = "$dir/train_conf.json"
+    if isfile(json_path)
+        json = JSON.parsefile(json_path)
+        train_start = json["train_start"]
+        train_end = json["train_end"]
+        test_start = json["test_start"]
+        test_end = json["test_end"]
+    else
+        @info "Configuration file not found reverting to defaults"
+        train_start = 1
+        train_end = trunc(Int, nrow(data) * 0.9)
+        test_start = train_end+1
+        test_end = nrow(data)
+    end
+
+    return train_start, train_end, test_start, test_end
+end
+
 
 function load_data(dir)
     @info "Reading data..."
@@ -12,15 +33,18 @@ function load_data(dir)
     @info "Reading blocks"
     blocks = CSV.read(string(dir, "/blocks.csv"))
 
-    train_len = trunc(Int, nrow(data) * 0.9)
-    test_len = nrow(data) - train_len
+    @info "Filtering dataset"
+    train_start, train_end, test_start, test_end = read_train_conf(dir, data)
+
+    train_len = train_end - train_start + 1
+    test_len = test_end - test_start + 1
 
     @info "Converting matrices...", "train/test set split is" train = train_len test = test_len
     
-    Xtr = convert(Matrix, data[1:train_len, setdiff(names(data), [:y])])
-    Xte = convert(Matrix, data[(train_len+1):end, setdiff(names(data), [:y])])
-    ytr = convert(Array, data[1:train_len, :y])
-    yte = convert(Array, data[(train_len+1):end, :y])
+    Xtr = convert(Matrix, data[train_start:train_end, setdiff(names(data), [:y])])
+    Xte = convert(Matrix, data[test_start:test_end, setdiff(names(data), [:y])])
+    ytr = convert(Array, data[train_start:train_end, :y])
+    yte = convert(Array, data[test_start:test_end, :y])
     P = convert(Matrix, blocks[:, 2:end])
 
     return Xtr, Xte, ytr, yte, P
