@@ -2,8 +2,10 @@ using DataFrames
 using CSV
 using DelimitedFiles
 
+const global MAX_COLS_PER_BLOCK = 100
+
 function add_block(blocks, cols, pos)
-    for col in cols 
+    for col in cols
         push!(blocks, vcat([col], [0 for i in 1:(pos-1)], 1, [0 for i in (pos+1):17]))
     end
 
@@ -40,18 +42,23 @@ function load_X()
                     TS2 = Int8[])
 
     df = CSV.read("CE.txt", header=map(x -> string("CE",x), 1:60))
-    cols = [string("CE",i) for i in 1:60]
+    df = df[:, 1:min(ncol(df), MAX_COLS_PER_BLOCK)]
+    cols = ["CE-$i" for i in 1:60]
     
     cur_block = add_block(blocks, cols, 1)
 
     for file in files
         @info "Reading $file.txt\n"
-        tmpdf = CSV.read(string(file, ".txt"), header=0)
-        cols = [string(file,i) for i in 1:ncol(tmpdf)]
-        rename!(tmpdf, [Symbol(c) for c in cols])
-        df = hcat(df, tmpdf)
+        tmpdf = CSV.read("$file.txt", header=0)
+        num_cols = min(ncol(tmpdf), MAX_COLS_PER_BLOCK)
 
-        cur_block = add_block(blocks, cols, cur_block)
+        all_cols = ["$file-$i" for i in 1:ncol(tmpdf)]
+        filtered_cols = ["$file-$i" for i in 1:num_cols]
+        rename!(tmpdf, [Symbol(c) for c in all_cols])
+        df = hcat(df, tmpdf[:, 1:num_cols])
+
+
+        cur_block = add_block(blocks, filtered_cols, cur_block)
     end
 
     @info "Reading profile.txt\n"
