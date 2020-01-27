@@ -7,7 +7,7 @@ using JSON
 using Gurobi
 using ECOS
 
-using PartitionedLS: fit, predict
+using PartitionedLS: fit, predict, Opt
 # include("../../PartitionedLS/src/PartitionedLS.jl")
 include("PartitionedLS-expio.jl")
 

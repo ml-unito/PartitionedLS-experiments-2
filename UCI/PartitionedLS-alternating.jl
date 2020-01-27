@@ -8,7 +8,7 @@ using Gurobi
 using SCS
 using ECOS
 
-using PartitionedLS: fit,  predict
+using PartitionedLS: fit, predict, Alt
 # include("../../PartitionedLS/src/PartitionedLS.jl")
 include("PartitionedLS-expio.jl")
 
