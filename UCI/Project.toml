@@ -1,3 +1,8 @@
 [deps]
+Convex = "f65535da-76fb-5f13-bab9-19810c17039a"
+Gurobi = "2e9cd046-0924-5485-92f1-d5272153d98b"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
-PartitionedLS = "19f41c5e-8610-11e9-2f2a-0d67e7c5027f"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Mosek = "6405355b-0ac2-5fba-af84-adbd65488c0e"
+SCS = "c946c3f1-0d1f-5ce8-9dea-7daa1f7e2d13"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"

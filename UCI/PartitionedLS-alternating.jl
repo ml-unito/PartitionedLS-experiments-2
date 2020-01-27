@@ -1,12 +1,22 @@
 # using Gadfly
-using PartitionedLS: fit_alternating, fit_alternating_slow, predict
 using DataFrames
 using CSV
 using LinearAlgebra
 using JLD
 using JSON
+using Gurobi
+using SCS
+using ECOS
 
+# using PartitionedLS: fit_alternating, fit_alternating_slow, predict
+include("../../PartitionedLS/src/PartitionedLS.jl")
 include("PartitionedLS-expio.jl")
+
+optimizers = Dict(
+    "Gurobi" => (() -> GurobiSolver(BarHomogeneous=1)),
+    "ECOS" => (() -> ECOSSolver()),
+    "SCS" => (() -> SCSSolver())
+)
 
 # main
 
@@ -37,7 +47,9 @@ cumulative_time = 0.0
 
 for i in 1:num_retrials
     global best_objective, cumulative_time
-    fitted_params, time, _ = @timed fit_alternating(Xtr, ytr, P, verbose=0, η=1.0; N=num_alternations)
+    fitted_params, time, _ = @timed fit(Alt, Xtr, ytr, P, η=conf["regularization"]; 
+                                        get_solver = (() -> optimizers[conf["optimizer"]]()), 
+                                        N=num_alternations)
     objvalue, α, β, t, _ = fitted_params
 
     cumulative_time += time
@@ -61,11 +73,12 @@ objvalue, α, β, t, _ = results[best_i]
 
 @info "objvalue: $objvalue"
 @info "loss:" norm(predict(results[best_i], Xte) - yte)^2
+filename = "$dir/PartitionedLS-$(conf["optimizer"])-ALT-$exp_name"
 
-@info "Saving optimal values of α β t and objvalue to ./PartitionedLS-alternating-vars.jld"
-save("$dir/PartitionedLS-ALT-$exp_name.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
+@info "Saving optimal values of α β t and objvalue to $filename.jld"
+save("$filename.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
 
 print(df)
 
-@info "Saving performances to ./PartitionedLS-alternating-results.csv"
-CSV.write("$dir/PartitionedLS-ALT-$exp_name.csv", df)
+@info "Saving performances to $filename.csv"
+CSV.write("$filename.csv", df)

@@ -18,10 +18,17 @@ function load_X()
     cov_cols = [Symbol("COV-$i") for i in 1:78]
     cols = vcat([:y], avg_cols, cov_cols)
 
-    blocks = DataFrame(Descriptor = String[], AVG=Int8[],  COV=Int8[])
+    blocks = DataFrame(Descriptor = String[], AVG=Int8[],  COV1=Int8[], COV2=Int8[], COV3=Int8[],COV4=Int8[], COV5=Int8[],COV6=Int8[], COV7=Int8[], COV8=Int8[])
 
     add_block(blocks, avg_cols, 1)
-    add_block(blocks, cov_cols, 2)
+    add_block(blocks, cov_cols[1:10], 2)
+    add_block(blocks, cov_cols[11:20], 3)
+    add_block(blocks, cov_cols[21:30], 4)
+    add_block(blocks, cov_cols[31:40], 5)
+    add_block(blocks, cov_cols[41:50], 6)
+    add_block(blocks, cov_cols[51:60], 7)
+    add_block(blocks, cov_cols[61:70], 8)
+    add_block(blocks, cov_cols[71:78], 9)
 
     @info "Reading YearPredictionMSD.txt\n"
     df = CSV.read("YearPredictionMSD.txt", header=cols)

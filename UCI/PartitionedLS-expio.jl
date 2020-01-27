@@ -30,6 +30,11 @@ function load_data(dir, conf)
     Xte = convert(Matrix, data[test_start:test_end, setdiff(names(data), [:y])])
     ytr = convert(Array, data[train_start:train_end, :y])
     yte = convert(Array, data[test_start:test_end, :y])
+
+    colsums = sum(Xtr, dims=1)
+    Xtr = Xtr ./ colsums
+    Xte = Xte ./ colsums
+
     P = convert(Matrix, blocks[:, 2:end])
 
     return Xtr, Xte, ytr, yte, P

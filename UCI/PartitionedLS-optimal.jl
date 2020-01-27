@@ -1,19 +1,31 @@
-using PartitionedLS: fit, predict
 using DataFrames
 using CSV
 using Printf
 using LinearAlgebra
 using JLD
 using JSON
+using Gurobi
+using ECOS
 
+# using PartitionedLS: fit, predict
+include("../../PartitionedLS/src/PartitionedLS.jl")
 include("PartitionedLS-expio.jl")
+
+optimizers = Dict(
+    "Gurobi" => (() -> GurobiSolver()),
+    "ECOS" => (() -> ECOSSolver()),
+    "SCS" => (() -> SCSSolver())
+)
 
 # main
 
 dir = ARGS[1]
 conf = read_train_conf(dir)
 
+
 Xtr, Xte, ytr, yte, P = load_data(dir, conf)
+
+@info size(P)
 
 df = DataFrame(
     Time = Float64[],
@@ -23,12 +35,12 @@ df = DataFrame(
 )
 
 # Warming up julia environment (avoids counting the time julia needs to compile the function
-# when we time the algorithm execution on the next few lines)
+# when we time the algorithm execution on the next few lines) 
 # @info "Warming up..."
 # _ = fit(Xtr, ytr, P, verbose=1, η=1.0)
 
 @info "Fitting the model"
-tll, time, _ = @timed  fit(Xtr, ytr, P, verbose=1, η=1.0)
+tll, time, _ = @timed  fit(Opt, Xtr, ytr, P, η=conf["regularization"], get_solver = optimizers[conf["optimizer"]])
 objvalue, α, β, t, _ = tll
 
 push!(df, [time, time, objvalue, objvalue])
@@ -36,8 +48,10 @@ push!(df, [time, time, objvalue, objvalue])
 @info "objvalue: $objvalue"
 @info "loss:" norm(predict(tll, Xte) - yte)^2
 
-@info "Saving variables into file ./PartitionedLS-optimal-vars.jld" α β t
-save("$dir/PartitionedLS-OPT.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
+filename = "$dir/PartitionedLS-$(conf["optimizer"])-OPT"
 
-@info "Saving performances into ./PartitionedLS-optimal-results.csv"
-CSV.write("$dir/PartitionedLS-OPT.csv", df)
+@info "Saving variables into file $filename.jld" α β t
+save("$filename.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
+
+@info "Saving performances into $filename.csv"
+CSV.write("$filename.csv", df)
