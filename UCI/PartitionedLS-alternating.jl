@@ -46,6 +46,8 @@ cumulative_time = 0.0
 # _ = fit_alternating(Xtr, ytr, P, verbose=0, η=1.0)
 
 for i in 1:num_retrials
+    @info "Retrial $i/$num_retrials"
+
     global best_objective, cumulative_time
     fitted_params, time, _ = @timed fit(Alt, Xtr, ytr, P, η=conf["regularization"]; 
                                         get_solver = (() -> optimizers[conf["optimizer"]]()), 
