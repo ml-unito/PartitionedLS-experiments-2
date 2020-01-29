@@ -8,7 +8,8 @@ using Gurobi
 using SCS
 using ECOS
 
-using PartitionedLS: fit, predict, Alt
+using PartitionedLS
+using Checkpoint
 # include("../../PartitionedLS/src/PartitionedLS.jl")
 include("PartitionedLS-expio.jl")
 
@@ -45,13 +46,18 @@ cumulative_time = 0.0
 # when we time the algorithm execution in the next loop)
 # _ = fit_alternating(Xtr, ytr, P, verbose=0, η=1.0)
 
-for i in 1:num_retrials
+i_start, cumulative_time, df = resume(conf, init=(0,0.0,df), nick="Alt-outer", path=dir)
+
+for i in (i_start+1):num_retrials
     @info "Retrial $i/$num_retrials"
 
     global best_objective, cumulative_time
     fitted_params, time, _ = @timed fit(Alt, Xtr, ytr, P, η=conf["regularization"]; 
                                         get_solver = (() -> optimizers[conf["optimizer"]]()), 
-                                        N=num_alternations)
+                                        N=num_alternations,
+                                        checkpoint = (data) -> checkpoint(conf, data=data, path=dir, nick="Alt-inner" ),
+                                        resume = (init) -> resume(conf, init=init, path=dir, nick="Alt-inner"))
+    removecheckpoint(conf, path=dir, nick="Alt-inner")
     objvalue, α, β, t, _ = fitted_params
 
     cumulative_time += time
@@ -60,6 +66,7 @@ for i in 1:num_retrials
     @info time=time i=i objvalue=objvalue
     push!(df, [time,cumulative_time, objvalue, best_objective])
     push!(results, fitted_params)
+    checkpoint(conf, data=(i, cumulative_time, df), path=dir, nick="Alt-outer")
 end
 
 function getobj(fitted_params)

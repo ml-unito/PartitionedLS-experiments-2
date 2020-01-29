@@ -7,7 +7,8 @@ using JSON
 using Gurobi
 using ECOS
 
-using PartitionedLS: fit, predict, Opt
+using PartitionedLS
+using Checkpoint
 # include("../../PartitionedLS/src/PartitionedLS.jl")
 include("PartitionedLS-expio.jl")
 
@@ -40,7 +41,10 @@ df = DataFrame(
 # _ = fit(Xtr, ytr, P, verbose=1, η=1.0)
 
 @info "Fitting the model"
-tll, time, _ = @timed  fit(Opt, Xtr, ytr, P, η=conf["regularization"], get_solver = optimizers[conf["optimizer"]])
+tll, time, _ = @timed  fit(Opt, Xtr, ytr, P, η=conf["regularization"], 
+                           get_solver = optimizers[conf["optimizer"]],
+                           checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
+                           resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir))
 objvalue, α, β, t, _ = tll
 
 push!(df, [time, time, objvalue, objvalue])
@@ -48,7 +52,8 @@ push!(df, [time, time, objvalue, objvalue])
 @info "objvalue: $objvalue"
 @info "loss:" norm(predict(tll, Xte) - yte)^2
 
-filename = "$dir/PartitionedLS-$(conf["optimizer"])-OPT"
+exppath = checkpointpath(conf, path=dir)
+filename = "$exppath/results-OPT"
 
 @info "Saving variables into file $filename.jld" α β t
 save("$filename.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
