@@ -41,7 +41,7 @@ df = DataFrame(
 # _ = fit(Xtr, ytr, P, verbose=1, η=1.0)
 
 @info "Fitting the model"
-tll, time, _ = @timed  fit(Opt, Xtr, ytr, P, η=conf["regularization"], 
+tll, time, _ = @timed  fit(Opt, Xtr, ytr, P, 
                            get_solver = optimizers[conf["optimizer"]],
                            checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
                            resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir))
