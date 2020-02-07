@@ -7,10 +7,10 @@ using JSON
 using Gurobi
 using SCS
 using ECOS
+using Logging
 
 using PartitionedLS
 using Checkpoint
-# include("../../PartitionedLS/src/PartitionedLS.jl")
 include("PartitionedLS-expio.jl")
 
 optimizers = Dict(
@@ -23,11 +23,20 @@ optimizers = Dict(
 
 dir = ARGS[1]
 conf = read_train_conf(dir)
+
+mkcheckpointpath(conf, path=dir)
+exppath = checkpointpath(conf, path=dir)
+filename = "$exppath/results-ALT"
+
+io = open("$filename.log", "w+")
+logger = SimpleLogger(io)
+global_logger(logger)
+
 Xtr, Xte, ytr, yte, P = load_data(dir, conf)
 
-num_retrials = conf["ALT"]["num_retrials"]
-num_alternations = conf["ALT"]["num_alternations"]
-exp_name = conf["ALT"]["exp_name"]
+num_retrials = conf["Alt"]["num_retrials"]
+num_alternations = conf["Alt"]["num_alternations"]
+exp_name = conf["Alt"]["exp_name"]
 
 @info "Fitting the model"
 
@@ -52,7 +61,7 @@ for i in (i_start+1):num_retrials
     @info "Retrial $i/$num_retrials"
 
     global best_objective, cumulative_time
-    fitted_params, time, _ = @timed fit(Alt, Xtr, ytr, P, η=conf["regularization"]; 
+    fitted_params, time, _ = @timed fit(AltNNLS, Xtr, ytr, P, 
                                         get_solver = (() -> optimizers[conf["optimizer"]]()), 
                                         N=num_alternations,
                                         checkpoint = (data) -> checkpoint(conf, data=data, path=dir, nick="Alt-inner" ),
@@ -82,12 +91,9 @@ objvalue, α, β, t, _ = results[best_i]
 
 @info "objvalue: $objvalue"
 @info "loss:" norm(predict(results[best_i], Xte) - yte)^2
-filename = "$dir/PartitionedLS-$(conf["optimizer"])-ALT-$exp_name"
 
 @info "Saving optimal values of α β t and objvalue to $filename.jld"
 save("$filename.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
-
-print(df)
 
 @info "Saving performances to $filename.csv"
 CSV.write("$filename.csv", df)

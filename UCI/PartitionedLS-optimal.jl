@@ -6,6 +6,7 @@ using JLD
 using JSON
 using Gurobi
 using ECOS
+using Logging
 
 using PartitionedLS
 using Checkpoint
@@ -22,6 +23,14 @@ optimizers = Dict(
 
 dir = ARGS[1]
 conf = read_train_conf(dir)
+
+mkcheckpointpath(conf, path=dir)
+exppath = checkpointpath(conf, path=dir)
+filename = "$exppath/results-OPT"
+
+io = open("$filename.log", "w+")
+logger = SimpleLogger(io)
+global_logger(logger)
 
 
 Xtr, Xte, ytr, yte, P = load_data(dir, conf)
@@ -41,19 +50,26 @@ df = DataFrame(
 # _ = fit(Xtr, ytr, P, verbose=1, η=1.0)
 
 @info "Fitting the model"
-tll, time, _ = @timed  fit(Opt, Xtr, ytr, P, 
+
+if conf["use nnls"] == true
+    @assert conf["regularization"] == 0.0
+    tll, time, _ = @timed  fit(OptNNLS, Xtr, ytr, P, 
+                            get_solver = optimizers[conf["optimizer"]],
+                            checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
+                            resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir))
+else
+    tll, time, _ = @timed  fit(Opt, Xtr, ytr, P, η = conf["regularization"],
                            get_solver = optimizers[conf["optimizer"]],
                            checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
                            resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir))
+end
+
 objvalue, α, β, t, _ = tll
 
 push!(df, [time, time, objvalue, objvalue])
 
 @info "objvalue: $objvalue"
 @info "loss:" norm(predict(tll, Xte) - yte)^2
-
-exppath = checkpointpath(conf, path=dir)
-filename = "$exppath/results-OPT"
 
 @info "Saving variables into file $filename.jld" α β t
 save("$filename.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
