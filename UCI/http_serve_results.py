@@ -159,7 +159,7 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 	def __diff_conf(self, conf, base_conf):
 		result = {}
 		for key in conf.keys():
-			if base_conf[key] == None:
+			if key not in base_conf:
 				result[key] = ("+", conf[key])
 				continue
 
@@ -174,7 +174,7 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 				continue
 		
 		for key in base_conf.keys():
-			if conf[key] == None:
+			if key not in conf:
 				result[key] = ("-", base_conf[key])
 
 		return result
