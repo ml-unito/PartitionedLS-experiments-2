@@ -4,6 +4,7 @@ import os
 import json
 import urllib
 import pandas
+import re
 
 PORT_NUMBER = 8080
 
@@ -41,8 +42,29 @@ class Html:
 			}
 
 			pre {
+				white-space: pre-wrap;
 				border: 1px solid black;
 				background-color: rgb(240, 240, 240);
+			}
+
+			pre span.debug {
+				background-color: blue;
+				color: white;
+			}
+
+			pre span.info {
+				background-color: rgb(9, 128, 13);;
+				color: white;
+			}
+
+			pre span.warning {
+				background-color: orange;
+				color: white;
+			}
+
+			pre span.error {
+				background-color: red;
+				color: white;
 			}
 
 			.result_cell {
@@ -55,6 +77,7 @@ class Html:
 	def str(self):
 		return ("<html>"
 			"<head>" +
+			"<meta charset=\"utf-8\">" +
 			self._style() +
 			"</head>"
 			"<body>" + "\n".join(self.body) + "</html><body>")
@@ -99,13 +122,17 @@ class Pre:
 
 class Div:
 	def __init__(self, elem, klass=""):
-		self.div = "<div"
+		self.open_div = "<div"
 		if klass != "":
-			self.div += " class=\"" + klass +"\""
-		self.div += ">" + elem.str() + "</div>"
+			self.open_div += " class=\"" + klass +"\""
+		self.open_div += ">" 
+		self.elems = elem.str()
+
+	def add(self, elem):
+		self.elems += elem.str()
 
 	def str(self):
-		return self.div
+		return self.open_div + self.elems + "</div>"
 
 class Str:
 	def __init__(self, str):
@@ -141,6 +168,8 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 		
 		if self.path == "/":
 			self.wfile.write(self.__get_index_html().encode('utf-8'))
+		elif self.path.endswith(".log"):
+			self.wfile.write(self.__get_log_html(self.path).encode('utf-8'))
 		else:
 			self.wfile.write(self.__get_result_html(self.path).encode('utf-8'))
 
@@ -188,7 +217,7 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 		result = Html()
 		result.add(H(1, dir))
 		table = Table()
-		table.add_header([Str("Configuration diff"), Str("Results (Opt)"), Str("Results (Alt)")])
+		table.add_header([Str("Configuration diff"), Str("Results (Opt)"), Str("Results (Alt)"), Str("Log files")])
 
 		innerdirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d)) and d[0] != '.']
 		for d in innerdirs:
@@ -209,9 +238,26 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 			out_conf = Pre(json.dumps(conf, indent=2))
 			out_results_opt = Div( Str(self.__get_result(os.path.join(d, "results-OPT.csv"))), klass="result_cell")
 			out_results_alt = Div( Str(self.__get_result(os.path.join(d, "results-ALT.csv"))), klass="result_cell")
-			table.add( [ out_conf, out_results_opt, out_results_alt ] )
+			out_logs = Div(P(A("results-OPT.log", os.path.join(d,"results-OPT.log")).str()))
+			out_logs.add(P(A("results-ALT.log", os.path.join(d,"results-ALT.log")).str()))
+			table.add( [ out_conf, out_results_opt, out_results_alt, out_logs ] )
 
 		result.add(table)
+		return result.str()
+
+	def __format_log(self, s):
+		result = re.sub("Debug:", "<span class=\"debug\">Debug:</span>", s)
+		result = re.sub("Warning:", "<span class=\"warning\">Warning:</span>", result)
+		result = re.sub("Info:", "<span class=\"info\">Info:</span>", result)
+		result = re.sub("Error:", "<span class=\"error\">Error:</span>", result)
+		return result
+
+	def __get_log_html(self, path):
+		file_path = urllib.parse.unquote(os.path.relpath(path, "/"))
+		result = Html()
+		result.add(H(1, file_path))
+		with open(file_path, "r") as f:
+			result.add(Pre(self.__format_log(f.read())))
 		return result.str()
 
 	def __get_result(self, path):
