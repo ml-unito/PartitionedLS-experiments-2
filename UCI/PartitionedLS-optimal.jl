@@ -40,8 +40,10 @@ Xtr, Xte, ytr, yte, P = load_data(dir, conf)
 df = DataFrame(
     Time = Float64[],
     TimeCumulative = Float64[],
-    Objective = Float64[],
-    Best = Float64[]
+    TrainObj = Float64[],
+    TrainBest = Float64[],
+    TestObj = Float64[],
+    TestBest = Float64[]
 )
 
 # Warming up julia environment (avoids counting the time julia needs to compile the function
@@ -64,15 +66,18 @@ else
                            resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir))
 end
 
-objvalue, α, β, t, _ = tll
+loss = (model, X, y) -> norm(predict(model, X) - y)^2
 
-push!(df, [time, time, objvalue, objvalue])
+train_objvalue, α, β, t, _ = tll
+test_objvalue = loss(tll, Xte, yte)
 
-@info "objvalue: $objvalue"
-@info "loss:" norm(predict(tll, Xte) - yte)^2
+push!(df, [time, time, train_objvalue, train_objvalue, test_objvalue, test_objvalue])
+
+@info "objvalue: $train_objvalue"
+@info "loss:" train = train_objvalue test = test_objvalue
 
 @info "Saving variables into file $filename.jld" α β t
-save("$filename.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
+save("$filename.jld", "objvalue", train_objvalue, "α", α, "β", β, "t", t)
 
 @info "Saving performances into $filename.csv"
 CSV.write("$filename.csv", df)
