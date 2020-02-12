@@ -1,8 +1,8 @@
 {
     "train_start": 1,
-    "train_end": 15000, 
-    "test_start": 40950,
-    "test_end": 50992,
+    "train_end": 30, 
+    "test_start": 31,
+    "test_end": 43,
     "optimizer": "ECOS",
     "regularization": 0.0,
     "use nnls": true,

@@ -1,10 +1,10 @@
 {
     "train_start": 1,
-    "train_end": 14176,
+    "train_end": 100,
     "test_start": 14177,
     "test_end": 21263,
-    "optimizer": "Gurobi",
-    "regularization": 1.0,
+    "optimizer": "ECOS",
+    "regularization": 2.0,
     "ALT": {
         "exp_name": "N_100",
         "num_retrials": 100,
