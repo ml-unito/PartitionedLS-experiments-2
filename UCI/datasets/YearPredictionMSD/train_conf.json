@@ -1,0 +1,13 @@
+{
+    "train_start": 1,
+    "train_end": 1000,
+    "test_start":463716,
+    "test_end":473715,
+    "optimizer": "ECOS",
+    "regularization": 10.0,
+    "ALT": {
+        "exp_name": "N_100",
+        "num_retrials": 100,
+        "num_alternations": 10
+    }
+}
