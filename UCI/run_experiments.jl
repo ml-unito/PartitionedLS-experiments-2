@@ -56,7 +56,7 @@ for dir in dirs
     run(`download.sh`)
 
     @info "converting data"
-    run(`julia --project=. convert.jl`)
+    run(`julia --project=../.. convert.jl`)
     cd(startdir)
 
     @info "Executing experiment"
