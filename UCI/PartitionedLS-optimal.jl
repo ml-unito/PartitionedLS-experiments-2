@@ -4,8 +4,12 @@ using Printf
 using LinearAlgebra
 using JLD
 using JSON
-using Gurobi
 using ECOS
+# Decomment the following if you are actually planning to use
+# these solvers and you have installed the proper sw on your system
+# 
+# using SCS
+# using Gurobi
 using Logging
 
 using PartitionedLS
@@ -18,7 +22,7 @@ optimizers = Dict(
     "SCS" => (() -> SCSSolver())
 )
 
-function do_experiment(dir, conf, filename)
+function partlsopt_experiment_run(dir, conf, filename)
     Xtr, Xte, ytr, yte, P = load_data(dir, conf)
     
     @info size(P)
@@ -68,32 +72,29 @@ function do_experiment(dir, conf, filename)
     CSV.write("$filename.csv", df)
 end
 
-function experiment(dir, conf)
+function partlsopt_experiment(dir, conf)
     mkcheckpointpath(conf, path=dir)
     exppath = checkpointpath(conf, path=dir)
     filename = "$exppath/results-OPT"
+    std_logger = global_logger()
     
     io = open("$filename.log", "w+")
     logger = SimpleLogger(io)
     global_logger(logger)
 
     try
-        do_experiment(dir, conf, filename)
+        partlsopt_experiment_run(dir, conf, filename)
     catch error
         @error "Caught exception while executing experiment" conf=conf error=error
+        exit(1)
     end
+
+    global_logger(std_logger)
 end
 
 # main
 
 dir = ARGS[1]
 conf = read_train_conf(dir)
-conf["regularization"] = 0.0
-
-conf["use nnls"] = true
-experiment(dir, conf)
-
-conf["use nnls"] = false
-experiment(dir, conf)
-
+partlsopt_experiment(dir, conf)
 

@@ -4,11 +4,13 @@ using CSV
 using LinearAlgebra
 using JLD
 using JSON
-using Gurobi
-using SCS
-using ECOS
 using Logging
-
+# Decomment the following if you are actually planning to use
+# these solvers and you have installed the proper sw on your system
+# 
+# using SCS
+# using Gurobi
+using ECOS
 using PartitionedLS
 using Checkpoint
 include("PartitionedLS-expio.jl")
@@ -21,23 +23,8 @@ optimizers = Dict(
 
 # main
 
-function experiment(dir, conf)
-    mkcheckpointpath(conf, path=dir)
-    exppath = checkpointpath(conf, path=dir)
-    filename = "$exppath/results-ALT"
 
-    io = open("$filename.log", "w+")
-    logger = SimpleLogger(io)
-    global_logger(logger)
-
-    try
-        do_experiment(dir, conf, filename)
-    catch error
-        @error "Caught exception while executing experiment" conf=conf error=error
-    end
-end
-
-function do_experiment(dir, conf, filename)
+function partlsalt_experiment_run(dir, conf, filename)
     Xtr, Xte, ytr, yte, P = load_data(dir, conf)
 
     num_retrials = conf["Alt"]["num_retrials"]
@@ -125,12 +112,27 @@ function do_experiment(dir, conf, filename)
 end
 
 
+function partlsalt_experiment(dir, conf)
+    mkcheckpointpath(conf, path=dir)
+    exppath = checkpointpath(conf, path=dir)
+    filename = "$exppath/results-ALT"
+    std_logger = global_logger()
+
+    io = open("$filename.log", "w+")
+    logger = SimpleLogger(io)    
+    global_logger(logger)
+
+    try
+        partlsalt_experiment_run(dir, conf, filename)
+    catch error
+        @error "Caught exception while executing experiment" conf=conf error=error
+        exit(1)
+    end
+
+    global_logger(std_logger)
+end
+
+
 dir = ARGS[1]
 conf = read_train_conf(dir)
-conf["regularization"] = 0.0
-
-conf["use nnls"] = true
-experiment(dir, conf)
-
-conf["use nnls"] = false
-experiment(dir, conf)
+partlsalt_experiment(dir, conf)
