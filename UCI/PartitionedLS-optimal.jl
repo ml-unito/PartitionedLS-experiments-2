@@ -86,6 +86,10 @@ function partlsopt_experiment(dir, conf)
         partlsopt_experiment_run(dir, conf, filename)
     catch error
         @error "Caught exception while executing experiment" conf=conf error=error
+        for (exc, bt) in Base.catch_stack()
+            showerror(stdout, exc, bt)
+            println()
+        end
         exit(1)
     end
 
