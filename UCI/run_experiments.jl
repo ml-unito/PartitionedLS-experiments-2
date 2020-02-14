@@ -1,4 +1,7 @@
 using JSON
+using ArgParse
+
+
 include("PartitionedLS-expio.jl")
 
 function minutes(n)
@@ -7,7 +10,7 @@ end
 
 function execute_experiment_within_time_limits(algorithm, expdir, time_bound)
     @info "Starting experiment -- dir: $expdir algorithm: $algorithm"
-    ps = run(`julia --project=. PartitionedLS-$algorithm.jl $expdir`, wait=false)
+    ps = run(`julia --project=. PartitionedLS-$algorithm.jl -s $expdir`, wait=false)
 
     starttime = time()
     while time() - starttime < time_bound && process_running(ps) 
@@ -25,6 +28,16 @@ end
 
 # --- MAIN ---
 
+s = ArgParseSettings()
+@add_arg_table s begin
+    "-t", "--time-limit"
+        help = "Time limit per experiment (in minutes)"
+        arg_type = Int
+        default = 30
+end
+opts = parse_args(s)
+time_limit = minutes(opts["time-limit"])
+
 ENV["JULIA_DEBUG"] = "all"
 
 dirs = [
@@ -36,7 +49,6 @@ dirs = [
     "YearPredictionMSD"
 ]
 
-min15 = 60 * 15
 startdir = pwd()
 
 for dir in dirs
@@ -74,7 +86,7 @@ for dir in dirs
             write(file, json(conf))
         end
 
-        execute_experiment_within_time_limits("optimal", expdir, minutes(15))
-        execute_experiment_within_time_limits("alternating", expdir, minutes(15))
+        execute_experiment_within_time_limits("optimal", expdir, time_limit)
+        execute_experiment_within_time_limits("alternating", expdir, time_limit)
     end
 end

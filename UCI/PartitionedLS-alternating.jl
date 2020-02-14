@@ -5,6 +5,8 @@ using LinearAlgebra
 using JLD
 using JSON
 using Logging
+using ArgParse 
+
 # Decomment the following if you are actually planning to use
 # these solvers and you have installed the proper sw on your system
 # 
@@ -21,17 +23,25 @@ optimizers = Dict(
     "SCS" => (() -> SCSSolver())
 )
 
+function loss(params, X, y)
+    norm(predict(params, X) - y,2)^2
+end
+
+
 # main
 
+function fit_with_restarts(dir, conf, filename, Xtr, ytr, Xte, yte, P)
+    algorithm = (conf["use nnls"] == true ? AltNNLS : Alt)
 
-function partlsalt_experiment_run(dir, conf, filename)
-    Xtr, Xte, ytr, yte, P = load_data(dir, conf)
-
-    num_retrials = conf["Alt"]["num_retrials"]
-    num_alternations = conf["Alt"]["num_alternations"]
-    exp_name = conf["Alt"]["exp_name"]
-
-    @info "Fitting the model"
+    # Warming up julia environment (avoids counting the time julia needs to compile the function
+    # when we time the algorithm execution on the next few lines) 
+    @info "Warming up..."
+    _ = fit(algorithm, Xtr, ytr, P, η = 0.0,
+            get_solver = (() -> optimizers[conf["optimizer"]]()), 
+            N=10,
+            checkpoint = (data) -> checkpoint(conf, data=data, path=dir, nick="Alt-inner" ),
+            resume = (init) -> resume(conf, init=init, path=dir, nick="Alt-inner"),
+            fake_run = true)
 
     df = DataFrame(
         Time = Float64[],
@@ -42,34 +52,25 @@ function partlsalt_experiment_run(dir, conf, filename)
         TestBest = Float64[]
     )
 
-    results = []
+    i_start, cumulative_time, df, results = resume(conf, init=(0,0.0,df,[]), nick="Alt-outer", path=dir)
+
+    num_retrials = conf["Alt"]["num_retrials"]
+    num_alternations = conf["Alt"]["num_alternations"]
+
     best_objective = Inf64
     best_test_objective = Inf64
     cumulative_time = 0.0
-
-    # Warming up julia environment (avoids counting the time julia needs to compile the function
-    # when we time the algorithm execution in the next loop)
-    # _ = fit_alternating(Xtr, ytr, P, verbose=0, η=1.0)
-
-    i_start, cumulative_time, df = resume(conf, init=(0,0.0,df), nick="Alt-outer", path=dir)
-    loss = (params, X, y) -> norm(predict(params, X) - y,2)^2
-
+    
     for i in (i_start+1):num_retrials
         @info "Retrial $i/$num_retrials"
 
-        if conf["use nnls"] == true
-            fitted_params, time, _ = @timed fit(AltNNLS, Xtr, ytr, P, 
-                                                get_solver = (() -> optimizers[conf["optimizer"]]()), 
-                                                N=num_alternations,
-                                                checkpoint = (data) -> checkpoint(conf, data=data, path=dir, nick="Alt-inner" ),
-                                                resume = (init) -> resume(conf, init=init, path=dir, nick="Alt-inner"))
-        else
-            fitted_params, time, _ = @timed fit(Alt, Xtr, ytr, P, η = conf["regularization"],
-                                                get_solver = (() -> optimizers[conf["optimizer"]]()), 
-                                                N=num_alternations,
-                                                checkpoint = (data) -> checkpoint(conf, data=data, path=dir, nick="Alt-inner" ),
-                                                resume = (init) -> resume(conf, init=init, path=dir, nick="Alt-inner"))
-        end
+
+
+        fitted_params, time, _ = @timed fit(algorithm, Xtr, ytr, P, η = 0.0,
+                                            get_solver = (() -> optimizers[conf["optimizer"]]()), 
+                                            N=num_alternations,
+                                            checkpoint = (data) -> checkpoint(conf, data=data, path=dir, nick="Alt-inner" ),
+                                            resume = (init) -> resume(conf, init=init, path=dir, nick="Alt-inner"))
 
 
         removecheckpoint(conf, path=dir, nick="Alt-inner")
@@ -87,8 +88,26 @@ function partlsalt_experiment_run(dir, conf, filename)
         @info "stats" time=time i=i objvalue=train_objvalue
         push!(df, [time,cumulative_time, train_objvalue, best_objective, test_objvalue, best_test_objective])
         push!(results, fitted_params)
-        checkpoint(conf, data=(i, cumulative_time, df), path=dir, nick="Alt-outer")
+        checkpoint(conf, data=(i, cumulative_time, df, results), path=dir, nick="Alt-outer")
+
+        @info "Saving (partial) performances to $filename.csv"
+        CSV.write("$filename.csv", df)
     end
+
+    return results, df
+end
+
+
+function partlsalt_experiment_run(dir, conf, filename)
+    Xtr, Xte, ytr, yte, P = load_data(dir, conf)
+
+    num_retrials = conf["Alt"]["num_retrials"]
+    num_alternations = conf["Alt"]["num_alternations"]
+    exp_name = conf["Alt"]["exp_name"]
+
+    @info "Fitting the model"
+
+    results, df = fit_with_restarts(dir, conf, filename, Xtr, ytr, Xte, yte, P)
 
     function getobj(fitted_params)
         objvalue, α, β, t, _ = fitted_params
@@ -107,22 +126,16 @@ function partlsalt_experiment_run(dir, conf, filename)
     @info "Saving optimal values of α β t and objvalue to $filename.jld"
     save("$filename.jld", "objvalue", objvalue, "α", α, "β", β, "t", t)
 
-    @info "Saving performances to $filename.csv"
+    @info "Saving final performances to $filename.csv"
     CSV.write("$filename.csv", df)
 end
 
 
 function partlsalt_experiment(dir, conf)
-    mkcheckpointpath(conf, path=dir)
-    exppath = checkpointpath(conf, path=dir)
-    filename = "$exppath/results-ALT"
-    std_logger = global_logger()
-
-    io = open("$filename.log", "w+")
-    logger = SimpleLogger(io)    
-    global_logger(logger)
-
     try
+        exppath = checkpointpath(conf, path=dir)
+        filename = "$exppath/results-ALT"
+
         partlsalt_experiment_run(dir, conf, filename)
     catch error
         @error "Caught exception while executing experiment" conf=conf error=error
@@ -132,11 +145,32 @@ function partlsalt_experiment(dir, conf)
         end
         exit(1)
     end
-
-    global_logger(std_logger)
 end
 
 
-dir = ARGS[1]
+s = ArgParseSettings()
+@add_arg_table s begin
+    "-s", "--silent"
+        help = "Redirect all log messages to a log file in the results dir"
+        action = :store_true
+    "dir"
+        required = true
+end
+opts = parse_args(s)
+
+
+dir = opts["dir"]
 conf = read_train_conf(dir)
+mkcheckpointpath(conf, path=dir)
+
+if opts["silent"]
+    exppath = checkpointpath(conf, path=dir)
+    filename = "$exppath/results-ALT"
+    std_logger = global_logger()
+    
+    io = open("$filename.log", "w+")
+    logger = SimpleLogger(io)
+    global_logger(logger)
+end
+
 partlsalt_experiment(dir, conf)

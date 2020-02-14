@@ -5,6 +5,8 @@ using LinearAlgebra
 using JLD
 using JSON
 using ECOS
+using ArgParse
+
 # Decomment the following if you are actually planning to use
 # these solvers and you have installed the proper sw on your system
 # 
@@ -36,24 +38,26 @@ function partlsopt_experiment_run(dir, conf, filename)
         TestBest = Float64[]
     )
     
-    # Warming up julia environment (avoids counting the time julia needs to compile the function
-    # when we time the algorithm execution on the next few lines) 
-    # @info "Warming up..."
-    # _ = fit(Xtr, ytr, P, verbose=1, η=1.0)
+
     
     @info "Fitting the model"
+    algorithm = (conf["use nnls"] == true ? OptNNLS : Opt)
 
-    if conf["use nnls"] == true
-        tll, time, _ = @timed  fit(OptNNLS, Xtr, ytr, P, 
-                                get_solver = optimizers[conf["optimizer"]],
-                                checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
-                                resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir))
-    else
-        tll, time, _ = @timed  fit(Opt, Xtr, ytr, P, η = conf["regularization"],
-                               get_solver = optimizers[conf["optimizer"]],
-                               checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
-                               resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir))
-    end
+    # Warming up julia environment (avoids counting the time julia needs to compile the function
+    # when we time the algorithm execution on the next few lines) 
+    @info "Warming up..."
+    _ = fit(algorithm, Xtr, ytr, P, η = conf["regularization"],
+                        get_solver = optimizers[conf["optimizer"]],
+                        checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
+                        resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir),
+                        fake_run = true)
+
+    
+    # Actual run
+    tll, time, _ = @timed  fit(algorithm, Xtr, ytr, P, η = conf["regularization"],
+                            get_solver = optimizers[conf["optimizer"]],
+                            checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
+                            resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir))
     
     loss = (model, X, y) -> norm(predict(model, X) - y)^2
     
@@ -73,16 +77,10 @@ function partlsopt_experiment_run(dir, conf, filename)
 end
 
 function partlsopt_experiment(dir, conf)
-    mkcheckpointpath(conf, path=dir)
-    exppath = checkpointpath(conf, path=dir)
-    filename = "$exppath/results-OPT"
-    std_logger = global_logger()
-    
-    io = open("$filename.log", "w+")
-    logger = SimpleLogger(io)
-    global_logger(logger)
-
     try
+        exppath = checkpointpath(conf, path=dir)
+        filename = "$exppath/results-OPT"
+    
         partlsopt_experiment_run(dir, conf, filename)
     catch error
         @error "Caught exception while executing experiment" conf=conf error=error
@@ -92,13 +90,34 @@ function partlsopt_experiment(dir, conf)
         end
         exit(1)
     end
-
-    global_logger(std_logger)
 end
 
 # main
 
-dir = ARGS[1]
+s = ArgParseSettings()
+@add_arg_table s begin
+    "-s", "--silent"
+        help = "Redirect all log messages to a log file in the results dir"
+        action = :store_true
+    "dir"
+        required = true
+end
+opts = parse_args(s)
+
+
+dir = opts["dir"]
 conf = read_train_conf(dir)
+mkcheckpointpath(conf, path=dir)
+
+if opts["silent"]
+    exppath = checkpointpath(conf, path=dir)
+    filename = "$exppath/results-OPT"
+    std_logger = global_logger()
+    
+    io = open("$filename.log", "w+")
+    logger = SimpleLogger(io)
+    global_logger(logger)
+end
+
 partlsopt_experiment(dir, conf)
 
