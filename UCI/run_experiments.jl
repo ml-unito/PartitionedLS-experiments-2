@@ -31,7 +31,7 @@ dirs = [
     # "Condition monitoring of hydraulic systems/",
     "Facebook Comment Volume Dataset",
     "Limpet",
-    "PM2.5 Data of Five Chinese Cities Data Set",
+    # "PM2.5 Data of Five Chinese Cities Data Set",
     "Superconductivty Data",
     "YearPredictionMSD"
 ]
@@ -52,8 +52,8 @@ for dir in dirs
     cp("datasets/$dir/convert.jl", "experiments/$dir/convert.jl", force=true)
 
     cd("experiments/$dir")
-    @info "downloading data"
-    run(`download.sh`)
+    @info "Changed to dir: $(pwd()). Downloading data"
+    run(`./download.sh`)
 
     @info "converting data"
     run(`julia --project=. convert.jl`)
