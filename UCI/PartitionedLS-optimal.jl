@@ -4,8 +4,12 @@ using Printf
 using LinearAlgebra
 using JLD
 using JSON
-using Gurobi
 using ECOS
+# Decomment the following if you are actually planning to use
+# these solvers and you have installed the proper sw on your system
+# 
+# using SCS
+# using Gurobi
 using Logging
 
 using PartitionedLS

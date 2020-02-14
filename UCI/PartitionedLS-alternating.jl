@@ -4,11 +4,13 @@ using CSV
 using LinearAlgebra
 using JLD
 using JSON
-using Gurobi
-using SCS
-using ECOS
 using Logging
-
+# Decomment the following if you are actually planning to use
+# these solvers and you have installed the proper sw on your system
+# 
+# using SCS
+# using Gurobi
+using ECOS
 using PartitionedLS
 using Checkpoint
 include("PartitionedLS-expio.jl")
