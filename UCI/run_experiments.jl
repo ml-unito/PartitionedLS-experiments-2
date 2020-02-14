@@ -33,7 +33,7 @@ s = ArgParseSettings()
     "-t", "--time-limit"
         help = "Time limit per experiment (in minutes)"
         arg_type = Int
-        default = 30
+        default = 60
 end
 opts = parse_args(s)
 time_limit = minutes(opts["time-limit"])
