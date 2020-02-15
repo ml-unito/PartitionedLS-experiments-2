@@ -266,7 +266,7 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 			out_results_alt = Div( Str(self.__get_result(os.path.join(d, "results-ALT.csv"))), klass="result_cell")
 			out_logs = Div(P(A("results-OPT.log", os.path.join(d,"results-OPT.log")).str()))
 			out_logs.add(P(A("results-ALT.log", os.path.join(d,"results-ALT.log")).str()))
-			graph = Div(Img("/images/" + os.path.join(d, "results-ALT.csv.png"), "opt results"))
+			graph = Div(Img("/images/" + os.path.join(d, "results.png"), "result graphs"))
 			table.add( [ out_conf, out_results_opt, out_results_alt, graph, out_logs ] )
 
 		result.add(table)
@@ -305,14 +305,15 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 
 	def __get_image(self, path):
 		path = urllib.parse.unquote(os.path.relpath(path, "/"))
-		data_path = re.search('images/(.*).png', path).group(1)
-		img_inner_path = re.search('images/(.*)/[^/]*', path).group(1)
+		data_path = re.search('images/(.*)/results.png', path).group(1)
 
-		pd = pandas.read_csv(data_path)
-		self.__create_img_path(img_inner_path)
+		pd_alt = pandas.read_csv(os.path.join(data_path, "results-ALT.csv"))
+		pd_opt = pandas.read_csv(os.path.join(data_path,"results-OPT.csv"))
+		self.__create_img_path(data_path)
 
 		plt.clf()
-		plt.plot(pd["TimeCumulative"], pd["TrainBest"], "-o")
+		plt.plot(pd_alt["TimeCumulative"], pd_alt["TrainBest"], "-o")
+		plt.plot(pd_opt["TimeCumulative"], pd_opt["TrainBest"], "o")
 		plt.savefig(path, format="png")
 		
 		with open(path, "rb") as file:
