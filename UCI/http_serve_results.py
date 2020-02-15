@@ -5,6 +5,10 @@ import json
 import urllib
 import pandas
 import re
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io
 
 PORT_NUMBER = 8080
 
@@ -154,6 +158,13 @@ class Table:
 	def str(self):
 		return "<table>" + "\n".join(map(lambda x : "<tr>" + x + "</tr>", self.table)) + "</table>"
 
+class Img:
+	def __init__(self, src, alt):
+		self.img_src = src
+		self.img_alt = alt
+
+	def str(self):
+		return "<img src=\"" + self.img_src + "\" alt=\"" + self.img_alt + "\">"
 
 
 #  Actual logic for retrieving pages
@@ -161,16 +172,30 @@ class Table:
 class ResultRequestHandler(BaseHTTPRequestHandler):
 
 	#Handler for the GET requests
-	def do_GET(self):
-		self.send_response(200)
-		self.send_header('Content-type','text/html')
-		self.end_headers()
-		
+	def do_GET(self):		
 		if self.path == "/":
+			self.send_response(200)
+			self.send_header('Content-type', 'text/html')
+			self.end_headers()
+
 			self.wfile.write(self.__get_index_html().encode('utf-8'))
+		elif self.path.startswith("/images"):
+			self.send_response(200)
+			self.send_header('Content-type', 'image/png')
+			self.end_headers()
+
+			self.wfile.write(self.__get_image(self.path))
 		elif self.path.endswith(".log"):
+			self.send_response(200)
+			self.send_header('Content-type', 'text/html')
+			self.end_headers()
+
 			self.wfile.write(self.__get_log_html(self.path).encode('utf-8'))
 		else:
+			self.send_response(200)
+			self.send_header('Content-type', 'text/html')
+			self.end_headers()
+
 			self.wfile.write(self.__get_result_html(self.path).encode('utf-8'))
 
 		return
@@ -180,7 +205,8 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 		ul = Ul()
 
 		for dirname in [d for d in os.listdir(".") if os.path.isdir(d) and d[0] != '.']:
-			ul.add(A(dirname,dirname))
+			if dirname != "images":
+				ul.add(A(dirname,dirname))
 
 		result.add(ul)
 		return result.str()
@@ -217,7 +243,7 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 		result = Html()
 		result.add(H(1, dir))
 		table = Table()
-		table.add_header([Str("Configuration diff"), Str("Results (Opt)"), Str("Results (Alt)"), Str("Log files")])
+		table.add_header([Str("Configuration diff"), Str("Results (Opt)"), Str("Results (Alt)"), Str("Graph"), Str("Log files")])
 
 		innerdirs = [os.path.join(dir,d) for d in os.listdir(dir) if os.path.isdir(os.path.join(dir,d)) and d[0] != '.']
 		for d in innerdirs:
@@ -240,7 +266,8 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 			out_results_alt = Div( Str(self.__get_result(os.path.join(d, "results-ALT.csv"))), klass="result_cell")
 			out_logs = Div(P(A("results-OPT.log", os.path.join(d,"results-OPT.log")).str()))
 			out_logs.add(P(A("results-ALT.log", os.path.join(d,"results-ALT.log")).str()))
-			table.add( [ out_conf, out_results_opt, out_results_alt, out_logs ] )
+			graph = Div(Img("/images/" + os.path.join(d, "results-ALT.csv.png"), "opt results"))
+			table.add( [ out_conf, out_results_opt, out_results_alt, graph, out_logs ] )
 
 		result.add(table)
 		return result.str()
@@ -267,6 +294,30 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 		pd = pandas.read_csv(path)
 
 		return pd.to_html()
+
+	def __create_img_path(self, path):
+		current = "images/"
+		for elem in os.path.split(path):
+			current = os.path.join(current, elem)
+			if not os.path.isdir(current):
+				os.mkdir(current)
+
+
+	def __get_image(self, path):
+		path = urllib.parse.unquote(os.path.relpath(path, "/"))
+		data_path = re.search('images/(.*).png', path).group(1)
+		img_inner_path = re.search('images/(.*)/[^/]*', path).group(1)
+
+		pd = pandas.read_csv(data_path)
+		self.__create_img_path(img_inner_path)
+
+		plt.clf()
+		plt.plot(pd["TimeCumulative"], pd["TrainBest"], "-o")
+		plt.savefig(path, format="png")
+		
+		with open(path, "rb") as file:
+			return file.read()
+		
 
 
 #  Main program
