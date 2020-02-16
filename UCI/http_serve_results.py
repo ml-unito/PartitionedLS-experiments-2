@@ -172,7 +172,8 @@ class Img:
 class ResultRequestHandler(BaseHTTPRequestHandler):
 
 	#Handler for the GET requests
-	def do_GET(self):		
+	def do_GET(self):
+		# root index
 		if self.path == "/":
 			self.send_response(200)
 			self.send_header('Content-type', 'text/html')
@@ -180,18 +181,21 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 
 			self.wfile.write(self.__get_index_html().encode('utf-8'))
 		elif self.path.startswith("/images"):
+		# images
 			self.send_response(200)
 			self.send_header('Content-type', 'image/png')
 			self.end_headers()
 
 			self.wfile.write(self.__get_image(self.path))
 		elif self.path.endswith(".log"):
+		# log files
 			self.send_response(200)
 			self.send_header('Content-type', 'text/html')
 			self.end_headers()
 
 			self.wfile.write(self.__get_log_html(self.path).encode('utf-8'))
 		else:
+		# result tables
 			self.send_response(200)
 			self.send_header('Content-type', 'text/html')
 			self.end_headers()
