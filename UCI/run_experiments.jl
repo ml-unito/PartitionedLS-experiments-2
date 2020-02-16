@@ -34,20 +34,29 @@ s = ArgParseSettings()
         help = "Time limit per experiment (in minutes)"
         arg_type = Int
         default = 60
+    "-f", "--focus-on"
+        help = "Only run experiments in the provided directory"
+        arg_type = String
+        default = ""
 end
+
 opts = parse_args(s)
 time_limit = minutes(opts["time-limit"])
 
 ENV["JULIA_DEBUG"] = "all"
 
-dirs = [
-    # "Condition monitoring of hydraulic systems/",
-    "Facebook Comment Volume Dataset",
-    "Limpet",
-    # "PM2.5 Data of Five Chinese Cities Data Set",
-    "Superconductivty Data",
-    "YearPredictionMSD"
-]
+if opts["focus-on"] == ""
+    dirs = [
+        # "Condition monitoring of hydraulic systems/",
+        "Facebook Comment Volume Dataset",
+        "Limpet",
+        # "PM2.5 Data of Five Chinese Cities Data Set",
+        "Superconductivty Data",
+        "YearPredictionMSD"
+    ]
+else
+    dirs = [opts["focus-on"]]
+end
 
 startdir = pwd()
 
