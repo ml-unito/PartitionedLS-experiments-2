@@ -46,11 +46,9 @@ function partlsopt_experiment_run(dir, conf, filename)
     # Warming up julia environment (avoids counting the time julia needs to compile the function
     # when we time the algorithm execution on the next few lines) 
     @info "Warming up..."
-    _ = fit(algorithm, Xtr, ytr, P, η = conf["regularization"],
-                        get_solver = optimizers[conf["optimizer"]],
-                        checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
-                        resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir),
-                        fake_run = true)
+    _, time, _ = @timed fit(algorithm, Xtr, ytr, P, η = conf["regularization"],
+                        get_solver = optimizers[conf["optimizer"]])
+    @info "Warmup time: $(time) seconds"
 
     
     # Actual run

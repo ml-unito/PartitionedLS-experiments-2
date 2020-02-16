@@ -33,16 +33,6 @@ end
 function fit_with_restarts(dir, conf, filename, Xtr, ytr, Xte, yte, P)
     algorithm = (conf["use nnls"] == true ? AltNNLS : Alt)
 
-    # Warming up julia environment (avoids counting the time julia needs to compile the function
-    # when we time the algorithm execution on the next few lines) 
-    @info "Warming up..."
-    _ = fit(algorithm, Xtr, ytr, P, η = 0.0,
-            get_solver = (() -> optimizers[conf["optimizer"]]()), 
-            N=10,
-            checkpoint = (data) -> checkpoint(conf, data=data, path=dir, nick="Alt-inner" ),
-            resume = (init) -> resume(conf, init=init, path=dir, nick="Alt-inner"),
-            fake_run = true)
-
     df = DataFrame(
         Time = Float64[],
         TimeCumulative = Float64[],
@@ -62,10 +52,17 @@ function fit_with_restarts(dir, conf, filename, Xtr, ytr, Xte, yte, P)
     cumulative_time = 0.0
     
     for i in (i_start+1):num_retrials
+        if i == i_start+1
+            # Warming up julia environment (avoids counting the time julia needs to compile the function
+            # when we time the algorithm execution on the next few lines) 
+            @info "Warming up..."
+            _, time, _ = @timed fit(algorithm, Xtr, ytr, P, η = 0.0,
+                    get_solver = (() -> optimizers[conf["optimizer"]]()), 
+                    N=num_alternations)
+            @info "Warmup time: $(time) seconds"
+        end
+
         @info "Retrial $i/$num_retrials"
-
-
-
         fitted_params, time, _ = @timed fit(algorithm, Xtr, ytr, P, η = 0.0,
                                             get_solver = (() -> optimizers[conf["optimizer"]]()), 
                                             N=num_alternations,

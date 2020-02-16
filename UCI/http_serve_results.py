@@ -306,15 +306,23 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 	def __get_image(self, path):
 		path = urllib.parse.unquote(os.path.relpath(path, "/"))
 		data_path = re.search('images/(.*)/results.png', path).group(1)
+		title = re.search('images/([^/]+)/.*',path).group(1)
 
 		pd_alt = pandas.read_csv(os.path.join(data_path, "results-ALT.csv"))
 		pd_opt = pandas.read_csv(os.path.join(data_path,"results-OPT.csv"))
 		self.__create_img_path(data_path)
 
 		plt.clf()
-		plt.plot(pd_alt["TimeCumulative"], pd_alt["TrainBest"], "-o")
-		plt.plot(pd_opt["TimeCumulative"], pd_opt["TrainBest"], "o")
+		plt.title(title + " dataset ")
+		plt.plot(pd_alt["TimeCumulative"], pd_alt["TrainBest"], "-o", label="PartitionedLS-Alt")
+		plt.plot(pd_opt["TimeCumulative"], pd_opt["TrainBest"], "o", label="PartitionedLS-Opt")
+		plt.xscale("log")
+		plt.yscale("log")
+		plt.legend()
+		plt.xlabel("Time (log scale)")
+		plt.ylabel("Objective")
 		plt.savefig(path, format="png")
+
 		
 		with open(path, "rb") as file:
 			return file.read()
