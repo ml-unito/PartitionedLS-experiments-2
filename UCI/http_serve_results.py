@@ -317,6 +317,8 @@ class ResultRequestHandler(BaseHTTPRequestHandler):
 		self.__create_img_path(data_path)
 
 		plt.clf()
+		plt.grid(b=True, which='major')
+		plt.grid(b=True, which='minor', linestyle="--")
 		plt.title(title + " dataset ")
 		plt.plot(pd_alt["TimeCumulative"], pd_alt["TrainBest"], "-o", label="PartitionedLS-Alt")
 		plt.plot(pd_opt["TimeCumulative"], pd_opt["TrainBest"], "o", label="PartitionedLS-Opt")
