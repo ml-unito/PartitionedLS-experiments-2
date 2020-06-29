@@ -10,7 +10,7 @@ Update the Julia packages by running:
 julia --project=. --color=yes -e 'using Pkg; Pkg.update()'
 ```
 
-## Launch the expderiments using the optimal algorithm
+## Launch the experiments using the optimal algorithm
 
 
 ```bash
@@ -18,7 +18,7 @@ julia --project=. --color=yes exp1/PartitionedLS-optimal.jl
 ```
 
 
-## Launch the expderiments using the alternating LS algorithm
+## Launch the experiments using the alternating LS algorithm
 
 
 ```bash
