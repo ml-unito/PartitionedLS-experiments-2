@@ -1,9 +1,12 @@
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 Convex = "f65535da-76fb-5f13-bab9-19810c17039a"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
 JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 NonNegLeastSquares = "b7351bd1-99d9-5c5d-8786-f205a815c4d7"
 PackageCompiler = "9b87118b-4619-50d2-8e1e-99f35a4d4d9d"
 PartitionedLS = "19f41c5e-8610-11e9-2f2a-0d67e7c5027f"
+SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
