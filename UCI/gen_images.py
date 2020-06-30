@@ -8,7 +8,7 @@ import json
 
 def plot_opt_at_path(plt, path):
     pd_opt = pandas.read_csv(os.path.join(path,"results-OPT.csv"))
-    plt.plot(pd_opt["TimeCumulative"], pd_opt["TrainBest"], "o", label="PartitionedLS-Opt")
+    x, y = pd_opt["TimeCumulative"][0], pd_opt["TrainBest"][0]
 
 def plot_alt_at_path(plt, path, expname):
     pd_alt = pandas.read_csv(os.path.join(path, "results-ALT.csv"))
