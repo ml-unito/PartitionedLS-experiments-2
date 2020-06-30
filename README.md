@@ -1,26 +1,36 @@
-# Block Least Squares
+# Partitioned Least Squares
 
-This repository contains the code to replicate experiments on the PartitioningLS model. 
+This repository contains the code to replicate experiments on the PartitioningLS model
+as reported in the article published on [arXiv](https://arxiv.org/abs/2006.16202).
 
 ## Setup you environment
 
-Update the Julia packages by running:
+Clone the repository, move into the project directory and create the 
+experiments directory inside it.
+
+From inside the project directory update the Julia packages by running:
 
 ```bash
 julia --project=. --color=yes -e 'using Pkg; Pkg.update()'
 ```
 
-## Launch the experiments using the optimal algorithm
-
-
-```bash
-julia --project=. --color=yes exp1/PartitionedLS-optimal.jl
-```
-
-
-## Launch the experiments using the alternating LS algorithm
-
+## Run the experiments
 
 ```bash
-julia --project=. --color=yes exp1/PartitionedLS-alternating.jl
+julia --project=. run_experiments.jl
 ```
+
+## Accessing results
+
+A python script that implements a simple web server is provided so to allow
+to peruse the results once they are terminated.
+
+To launch the web server **move into the experiments** folder and run:
+
+```bash
+    python3 ../http_serve_results.py
+```
+
+Point your browser to "http://localhost:8080" and you should see a web
+page showing the names of the four datasets. Opening the links will show
+the results for each dataset.

@@ -10,6 +10,7 @@ end
 
 function execute_experiment_within_time_limits(algorithm, expdir, time_bound)
     @info "Starting experiment -- dir: $expdir algorithm: $algorithm"
+    print("julia --project=. PartitionedLS-$algorithm.jl -s $expdir")
     ps = run(`julia --project=. PartitionedLS-$algorithm.jl -s $expdir`, wait=false)
 
     starttime = time()
@@ -38,6 +39,10 @@ s = ArgParseSettings()
         help = "Only run experiments in the provided directory"
         arg_type = String
         default = ""
+    "-n", "--no-download"
+        help = "Skip downloading and converting the datasets"
+        arg_type = Bool
+        default = false
 end
 
 opts = parse_args(s)
@@ -67,18 +72,20 @@ for dir in dirs
         mkdir("experiments/$dir")
     end
 
-    cp("datasets/$dir/download.sh", "experiments/$dir/download.sh", force=true)
-    chmod("experiments/$dir/download.sh", 0o500)
+    if !opts["no-download"]
+        cp("datasets/$dir/download.sh", "experiments/$dir/download.sh", force=true)
+        chmod("experiments/$dir/download.sh", 0o500)
 
-    cp("datasets/$dir/convert.jl", "experiments/$dir/convert.jl", force=true)
+        cp("datasets/$dir/convert.jl", "experiments/$dir/convert.jl", force=true)
 
-    cd("experiments/$dir")
-    @info "Changed to dir: $(pwd()). Downloading data"
-    run(`./download.sh`)
+        cd("experiments/$dir")
+        @info "Changed to dir: $(pwd()). Downloading data"
+        run(`./download.sh`)
 
-    @info "converting data"
-    run(`julia --project=../.. convert.jl`)
-    cd(startdir)
+        @info "converting data"
+        run(`julia --project=../.. convert.jl`)
+        cd(startdir)
+    end
 
     @info "Executing experiment"
 
