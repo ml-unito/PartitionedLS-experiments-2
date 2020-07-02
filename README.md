@@ -5,8 +5,7 @@ as reported in the article published on [arXiv](https://arxiv.org/abs/2006.16202
 
 ## Setup you environment
 
-Clone the repository, move into the project directory and create the 
-experiments directory inside it.
+Clone the repository and move into the project directory.
 
 From inside the project directory update the Julia packages by running:
 
