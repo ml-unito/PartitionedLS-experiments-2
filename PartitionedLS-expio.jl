@@ -11,12 +11,18 @@ function read_train_conf(dir)
 end
 
 
-function load_data(dir, conf)
-    @info "Reading data..."
-    data = CSV.read(string(dir, "/data.csv"), DataFrame)
+function load_data(dir, conf; blocksfname = "blocks.csv", datafname = "data.csv", shuffle = false, seed = 0)
+    @info "Reading data from $datafname..."
+    data = CSV.read(string(dir, "/$datafname"), DataFrame)
 
-    @info "Reading blocks"
-    blocks = CSV.read(string(dir, "/blocks.csv"), DataFrame)
+    @info "Reading blocks from $blocksfname..."
+    blocks = CSV.read(string(dir, "/$blocksfname"), DataFrame)
+
+    if shuffle
+        @info "Shuffling data..."
+        Random.seed!(seed)
+        data = data[Random.shuffle(1:end), :]
+    end
 
     @info "Filtering dataset"
     train_start, train_end, test_start, test_end = conf["train_start"], conf["train_end"], conf["test_start"], conf["test_end"]
@@ -26,10 +32,6 @@ function load_data(dir, conf)
     test_len = test_end - test_start + 1
 
     @info "Converting matrices...", "train/test set split is" train = train_len test = test_len
-
-    print(names(data[train_start:train_end, setdiff(names(data), [:y])]))
-    print(names(data))
-    print(setdiff(names(data), ["y"]))
 
     
     # Xtr = convert(Matrix, data[train_start:train_end, setdiff(names(data), [:y])])
