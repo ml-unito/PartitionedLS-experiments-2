@@ -46,6 +46,10 @@ function printStats(datapath)
     return stats
 end
 
+
+@info "PartLSArtificial"
+artificial = printStats("datasets/PartLSArtificial")
+
 @info "Limpet"
 limpet = printStats("datasets/Limpet")
 
@@ -58,6 +62,4 @@ ypred = printStats("datasets/YearPredictionMSD")
 @info "Superconductivty Data"
 supercond = printStats("datasets/Superconductivty Data")
 
-@info "PartLSArtificial"
-artificial = printStats("datasets/PartLSArtificial")
 
