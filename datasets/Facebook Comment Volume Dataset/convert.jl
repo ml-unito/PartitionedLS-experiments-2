@@ -31,7 +31,7 @@ function load_X()
 
     @info df[1:5, :]
 
-    rename!(df, :Column53 => :y)
+    rename!(df, :Column54 => :y)
 
     return df, blocks
 end
@@ -44,5 +44,5 @@ CSV.write("blocks.csv", blocks)
 @info("Saving data...\n")
 open("data.csv", "w") do io
     writedlm(io, [[string(s) for s in names(df)]], ",")
-    writedlm(io, convert(Matrix, df[:,:]),",")
+    writedlm(io, Matrix(df[:,:]),",")
 end
