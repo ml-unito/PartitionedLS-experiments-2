@@ -3,6 +3,7 @@
 using DataFrames
 using CSV
 using DelimitedFiles
+using Tables
 
 function add_block(blocks, cols, pos)
     for col in cols
@@ -31,7 +32,7 @@ function load_X()
     add_block(blocks, cov_cols[71:78], 9)
 
     @info "Reading YearPredictionMSD.txt\n"
-    df = CSV.read("YearPredictionMSD.txt", header=cols)
+    df = CSV.read("YearPredictionMSD.txt", header=cols, DataFrame)
     
 
     @info "Moving y column to the end of the dataframe"
@@ -48,5 +49,5 @@ CSV.write("blocks.csv", blocks)
 @info("Saving data...\n")
 open("data.csv", "w") do io
     writedlm(io, [[string(s) for s in names(df)]], ",")
-    writedlm(io, convert(Matrix, df[:,:]),",")
+    writedlm(io, Tables.matrix(df[:,:]),",")
 end

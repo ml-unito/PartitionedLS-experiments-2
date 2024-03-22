@@ -14,7 +14,7 @@ function add_block(blocks, cols, pos)
 end
 
 function load_X()
-    df = CSV.read("dataset_orig.csv")
+    df = CSV.read("dataset_orig.csv", DataFrame, header=false)
     df = df[:, [1:37; 39:54]] # removing column #38 since it's the zero vector
     cols = [Symbol("col$i") for i in 1:53]
 
@@ -28,7 +28,10 @@ function load_X()
     add_block(blocks, cols[31:40], 4)
     add_block(blocks, cols[41:52], 5)
 
-    rename!(df, [cols[1:52]; :y] )
+
+    @info df[1:5, :]
+
+    rename!(df, :Column53 => :y)
 
     return df, blocks
 end
