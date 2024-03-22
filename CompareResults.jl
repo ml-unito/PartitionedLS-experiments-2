@@ -62,4 +62,25 @@ ypred = printStats("datasets/YearPredictionMSD")
 @info "Superconductivty Data"
 supercond = printStats("datasets/Superconductivty Data")
 
+summary = DataFrame([[],[],[],[],[],[]], [:Dataset, :Method, :TrainMean, :TrainStd, :TestMean, :TestStd])
 
+
+for dataset in [(artificial, "Artificial"), (limpet, "Limpet"), (fb, "Facebook"), (ypred, "Year Prediction"), (supercond, "Superconductivity")]
+    for method in ["LS", "Part_P_LS", "Part_P_Orig"]
+        push!(summary,
+            [   dataset[2],
+                method,
+                filter(row -> row.field == "Train_$method", dataset[1])[1, :mean],
+                filter(row -> row.field == "Train_$method", dataset[1])[1, :std],
+                filter(row -> row.field == "Test_$method", dataset[1])[1, :mean],
+                filter(row -> row.field == "Test_$method", dataset[1])[1, :std]
+            ]
+        )
+    end
+end
+
+
+
+print(summary)
+
+println(summary)
