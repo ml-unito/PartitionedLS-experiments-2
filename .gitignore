@@ -6,6 +6,7 @@
 LSBlocks*
 *.arff
 datasets/**/*.csv
+!datasets/**/*Result*.csv
 datasets/**/*.zip
 datasets/**/*.txt
 experiments
