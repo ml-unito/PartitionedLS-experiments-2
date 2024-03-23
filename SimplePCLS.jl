@@ -35,9 +35,9 @@ for i in 1:100
     Xtr, Xte, ytr, yte, P, colNames = load_data(datadir, conf, shuffle = true, seed = seeds[i])
     @info colNames
 
-    pca = fit(PCA, Xtr)
-    Xtr = predict(pca, Xtr)
-    Xte = predict(pca, Xte)
+    pca = fit(PCA, Xtr', maxoutdim=size(P,2))
+    Xtr = predict(pca, Xtr')'
+    Xte = predict(pca, Xte')'
     
     # Least squares on Xtr, ytr
 
