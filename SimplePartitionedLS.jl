@@ -69,3 +69,6 @@ CSV.write("$datadir/PartLSResults-PfromLS.csv", resultsLS)
 
 resultsOrig = performExperiments(datadir, "Original", seed -> "blocks.csv")
 CSV.write("$datadir/PartLSResults-POrig.csv", resultsOrig)
+
+resultsBestPart = performExperiments(datadir, "FromLSOpt", seed -> "LSOptBlocks.csv")
+CSV.write("$datadir/PartLSResults-PfromLSOpt.csv", resultsBestPart)

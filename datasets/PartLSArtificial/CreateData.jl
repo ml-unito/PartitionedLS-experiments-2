@@ -1,6 +1,7 @@
 using DataFrames
 using Tables
 using CSV
+using Random
 
 
 function createData(blocks, signs, dataError)
@@ -67,6 +68,8 @@ signs = [
 ]
 
 dataError = 0.1
+
+Random.seed!(123)
 
 data = createData(blocks, signs, dataError)
 blockmatrix = createBlockMatrix(blocks)
