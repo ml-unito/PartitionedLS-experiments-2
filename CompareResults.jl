@@ -8,9 +8,9 @@ using HypothesisTests
 include(joinpath(@__DIR__,"PartitionedLS-expio.jl"))
 
 function print_ttest_results(comb)
-    columns = [" ", "LS", "Part_P_LS", "Part_P_Orig", "PCLS", "Part_P_LS_Opt"]
+    columns = [" ", "LS", "Part_P_LS", "Part_P_Orig", "PCLS", "PLS", "Part_P_LS_Opt"]
 
-    df = DataFrame([[],[],[],[],[],[]] , [:Method, :LS, :Part_P_LS, :Part_P_Orig, :PCLS, :Part_P_LS_Opt])
+    df = DataFrame([[],[],[],[],[],[], []] , [:Method, :LS, :Part_P_LS, :Part_P_Orig, :PCLS, :PLS, :Part_P_LS_Opt])
 
     for method1 in columns
         if method1 == " "
@@ -59,6 +59,7 @@ function getStats(datapath)
     dfpartorig = CSV.read("$datapath/PartLSResults-POrig.csv", DataFrame)
     dfpcls = CSV.read("$datapath/PCLSResults.csv", DataFrame)
     dfpartlsopt = CSV.read("$datapath/PartLSResults-PfromLSOpt.csv", DataFrame)
+    dfpls = CSV.read("$datapath/PLSResults.csv", DataFrame)
 
     comb = DataFrame(
         Seed = dfls[!,"Seed"],
@@ -67,11 +68,13 @@ function getStats(datapath)
         Train_Part_P_Orig = dfpartorig[!,"TrainingError"] / train_size,
         Train_Part_P_LS_Opt = dfpartlsopt[!,"TrainingError"] / train_size,
         Train_PCLS = dfpcls[!,"TrainingError"] / train_size,
+        Train_PLS = dfpls[!,"TrainingError"] / train_size,
         Test_LS = dfls[!,"TestError"] / test_size,
         Test_Part_P_LS = dfpartls[!, "TestError"] / test_size,
         Test_Part_P_Orig = dfpartorig[!,"TestError"] / test_size,
         Test_Part_P_LS_Opt = dfpartlsopt[!,"TestError"] / test_size,
         Test_PCLS = dfpcls[!,"TestError"] / test_size,
+        Test_PLS = dfpls[!,"TestError"] / test_size
     )
 
     if any( row -> any( x-> x isa Number && isnan(x), row), eachrow(comb))
@@ -110,9 +113,10 @@ supercond = getStats("datasets/Superconductivty Data")
 
 
 datasets = [(artificial, "Artificial"), (limpet, "Limpet"), (fb, "Facebook"), (ypred, "Year Prediction"), (supercond, "Superconductivity")]
+
 summary = DataFrame([[],[],[],[],[],[]], [:Dataset, :Method, :TrainMean, :TrainStd, :TestMean, :TestStd])
 for dataset in datasets
-    for method in ["LS", "Part_P_LS", "Part_P_Orig", "PCLS", "Part_P_LS_Opt"]
+    for method in ["LS", "Part_P_LS", "Part_P_Orig", "PCLS", "PLS", "Part_P_LS_Opt"]
         push!(summary,
             [   dataset[2],
                 replace(method, '_' => '-'),

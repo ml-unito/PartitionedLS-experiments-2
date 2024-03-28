@@ -9,6 +9,15 @@ datasets/**/*.csv
 !datasets/**/*Result*.csv
 datasets/**/*.zip
 datasets/**/*.txt
-experiments
 *.log
+experiments-old
+experiments-old-old
 
+data.csv
+blocks.csv
+
+experiments/venv.nosync
+published-results/time-vs-obj/Facebook/Dataset.zip
+published-results/time-vs-obj/Facebook/dataset_orig.csv
+published-results/time-vs-obj/Supercond/unique_m.csv
+experiments

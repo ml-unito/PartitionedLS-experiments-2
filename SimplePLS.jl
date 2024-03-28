@@ -4,17 +4,25 @@ using DataFrames
 using Tables
 using LinearAlgebra
 using Random
-using MultivariateStats
+using Statistics
+using MLJBase, MLJModels
+
+
+PLSRegressor = @load PLSRegressor pkg = PartialLeastSquaresRegressor
 
 function sign(w)
     return [ifelse(w[i] >= 0, 1, -1) for i in 1:length(w)]
+end
+
+function indicesOfNonConstantCols(X)
+    return vec(var(X, dims=1) .> 1e-10)
 end
 
 include(joinpath(@__DIR__,"PartitionedLS-expio.jl"))
 
 
 if length(ARGS) < 1
-    println("Usage: SimplePCLS <datadir>")
+    println("Usage: SimplePLS <datadir>")
     exit(1)
 end
 
@@ -35,23 +43,23 @@ for i in 1:100
     Xtr, Xte, ytr, yte, P, colNames = load_data(datadir, conf, shuffle = true, seed = seeds[i])
     @info "Iteration $i"
 
-    pca = fit(PCA, Xtr', maxoutdim=size(P,2))
-    Xtr = predict(pca, Xtr')'
-    Xte = predict(pca, Xte')'
+    clx = indicesOfNonConstantCols(Xtr)
+    Xtr = Xtr[:, clx]
+    Xte = Xte[:, clx]
+
+    Xtr = MLJBase.table(Xtr)
+    ytr = vec(ytr)
+    Xte = MLJBase.table(Xte)
+    yte = vec(yte)
+  
+    # Partial Least squares on Xtr, ytr
     
-    # Least squares on Xtr, ytr
+    pls = PLSRegressor(n_factors=size(P,2))
+    mach = machine(pls, Xtr, ytr)
+    fit!(mach)
 
-    Xtr = [ones(size(Xtr, 1)) Xtr]
-    Xte = [ones(size(Xte, 1)) Xte]
-
-    w = Xtr \ ytr
-    # w = inv(Xtr' * Xtr) * Xtr' * ytr
-    # w = pinv(Xtr, atol=100, rtol=100) * ytr
-
-    # Predictions
-
-    yhat_tr = Xtr * w
-    yhat_te = Xte * w
+    yhat_tr = predict(mach, Xtr)
+    yhat_te = predict(mach, Xte)
 
     # Compute errors
 
@@ -63,4 +71,4 @@ for i in 1:100
     @info "Training/Test errors:" TrainingError = err_tr TestError = err_te
 end
 
-CSV.write("$datadir/PCLSResults.csv", results)
+CSV.write("$datadir/PLSResults.csv", results)

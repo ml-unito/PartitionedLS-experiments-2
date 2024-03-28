@@ -25,7 +25,7 @@ function runExperiments(conf)
 
     for i in 1:100 
         Xtr, Xte, ytr, yte, P, colNames = load_data(datadir, conf, shuffle = true, seed = seeds[i])
-        @info colNames
+        @info "Iteration $i"
 
         # Least squares on Xtr, ytr
 
