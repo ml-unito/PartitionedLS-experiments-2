@@ -1,5 +1,5 @@
-ALGORITHMS="SimpleLeastSquares.jl SimplePartitionedLS.jl SimplePCLS.jl SimplePLS.jl"
-# ALGORITHMS="SimplePartitionedLS.jl SimplePCLS.jl SimplePLS.jl"
+# ALGORITHMS="SimpleLeastSquares.jl SimplePartitionedLS.jl SimplePCLS.jl SimplePLS.jl"
+ALGORITHMS="SimplePLS.jl"
 
 
 for algorithm in $ALGORITHMS; do
