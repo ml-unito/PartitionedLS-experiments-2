@@ -1,3 +1,6 @@
+datasetCache = Dict()
+
+
 function read_train_conf(dir)
     json_path = "$dir/train_conf.json"
     if isfile(json_path)
@@ -11,12 +14,18 @@ function read_train_conf(dir)
 end
 
 
-function load_data(dir, conf; blocksfname = "blocks.csv", datafname = "data.csv", shuffle = false, seed = 0)
-    @info "Reading data from $datafname..."
-    data = CSV.read(string(dir, "/$datafname"), DataFrame)
+function load_data(dir, conf; blocksfname = "$dir/blocks.csv", datafname = "data.csv", shuffle = false, seed = 0)
+    @info "Reading data from $dir/$datafname..."
+
+    if haskey(datasetCache, dir)
+        data = datasetCache[dir]
+    else
+        data = CSV.read(string(dir, "/$datafname"), DataFrame)
+        datasetCache[dir] = data
+    end
 
     @info "Reading blocks from $blocksfname..."
-    blocks = CSV.read(string(dir, "/$blocksfname"), DataFrame)
+    blocks = CSV.read(blocksfname, DataFrame)
 
     if shuffle
         @info "Shuffling data..."
@@ -39,8 +48,7 @@ function load_data(dir, conf; blocksfname = "blocks.csv", datafname = "data.csv"
     yte = Tables.matrix(data[test_start:test_end, [:y]])
 
    
-    # P = convert(Matrix, blocks[:, 2:end])
-    P = Tables.matrix(blocks[:, 2:end])
+    P = Matrix(blocks[:, 2:end])
 
     return Xtr, Xte, ytr, yte, P, names(data)
 end
