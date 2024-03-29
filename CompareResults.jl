@@ -46,9 +46,10 @@ function print_ttest_results(comb)
 end
 
 
-function getStats(datapath)
+function getStats(expdir)
     @info "Loading experiment config"
-    config = read_train_conf(datapath)
+    config = read_train_conf("datasets/$expdir")
+    datapath = "experiments/model-quality/$expdir"
 
     train_size = config["train_end"] - config["train_start"] + 1
     test_size = config["test_end"] - config["test_start"] + 1
@@ -96,19 +97,19 @@ end
 
 
 @info "PartLSArtificial"
-artificial = getStats("experiments/model-quality/PartLSArtificial")
+artificial = getStats("PartLSArtificial")
 
 @info "Limpet"
-limpet = getStats("experiments/model-quality/Limpet")
+limpet = getStats("Limpet")
 
 @info "Facebook Comment Volume Dataset"
-fb = getStats("experiments/model-quality/Facebook Comment Volume Dataset")
+fb = getStats("Facebook Comment Volume Dataset")
 
 @info "YearPredictionMSD"
-ypred = getStats("experiments/model-quality/YearPredictionMSD")
+ypred = getStats("YearPredictionMSD")
 
 @info "Superconductivty Data"
-supercond = getStats("experiments/model-quality/Superconductivty Data")
+supercond = getStats("Superconductivty Data")
 
 
 

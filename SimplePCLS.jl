@@ -1,7 +1,6 @@
 using JSON
 using CSV
 using DataFrames
-using Tables
 using LinearAlgebra
 using Random
 using MultivariateStats
