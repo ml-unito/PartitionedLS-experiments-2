@@ -27,6 +27,12 @@ if length(ARGS) < 1
 end
 
 datadir = ARGS[1]
+dircomponents = splitpath(datadir)
+expdir = joinpath("experiments", "model-quality", dircomponents[end])
+
+if !isdir(expdir)
+    mkpath(expdir)
+end
 
 conf = read_train_conf(datadir)
 
@@ -41,7 +47,7 @@ seeds = rand(0:1000000, 100)
 
 for i in 1:100 
     Xtr, Xte, ytr, yte, P, colNames = load_data(datadir, conf, shuffle = true, seed = seeds[i])
-    @info "Iteration $i"
+    @info "PLS Iteration $i"
 
     clx = indicesOfNonConstantCols(Xtr)
     Xtr = Xtr[:, clx]
@@ -71,4 +77,4 @@ for i in 1:100
     @info "Training/Test errors:" TrainingError = err_tr TestError = err_te
 end
 
-CSV.write("$datadir/PLSResults.csv", results)
+CSV.write("$expdir/PLSResults.csv", results)

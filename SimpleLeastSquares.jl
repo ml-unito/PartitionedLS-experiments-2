@@ -1,8 +1,6 @@
 using JSON
 using CSV
 using DataFrames
-using Tables
-using LinearAlgebra
 using Random
 
 function sign(w)
@@ -12,7 +10,7 @@ end
 include(joinpath(@__DIR__,"PartitionedLS-expio.jl"))
 
 
-function runExperiments(conf)
+function runExperiments(conf, datadir, expdir)
 
     results = DataFrame(
         Seed = Int[],
@@ -25,7 +23,7 @@ function runExperiments(conf)
 
     for i in 1:100 
         Xtr, Xte, ytr, yte, P, colNames = load_data(datadir, conf, shuffle = true, seed = seeds[i])
-        @info "Iteration $i"
+        @info "Least Squares Iteration $i"
 
         # Least squares on Xtr, ytr
 
@@ -60,13 +58,13 @@ function runExperiments(conf)
             Neg = [ifelse(signs[i] == -1, 1, 0) for i in 1:length(signs)]
         )
 
-        CSV.write("$datadir/LSBlocks-$i.csv", df)
+        CSV.write("$expdir/LSBlocks-$i.csv", df)
     end
 
-    CSV.write("$datadir/LSResults.csv", results)
+    CSV.write("$expdir/LSResults.csv", results)
 end
 
-function findBestBlockPartition(conf)
+function findBestBlockPartition(conf, datadir, expdir)
     Xtr, Xte, ytr, yte, P, colNames = load_data(datadir, conf, shuffle = false, seed = 0)
 
     # full dataset
@@ -87,7 +85,7 @@ function findBestBlockPartition(conf)
         Neg = [ifelse(signs[i] == -1, 1, 0) for i in 1:length(signs)]
     )
 
-    CSV.write("$datadir/LSOptBlocks.csv", df)
+    CSV.write("$expdir/LSOptBlocks.csv", df)
 end
 
 
@@ -97,8 +95,14 @@ if length(ARGS) < 1
 end
 
 datadir = ARGS[1]
+dircomponents = splitpath(datadir)
+expdir = joinpath("experiments", "model-quality", dircomponents[end])
+
+if !isdir(expdir)
+    mkpath(expdir)
+end
 
 conf = read_train_conf(datadir)
 
-runExperiments(conf)
-findBestBlockPartition(conf)
+runExperiments(conf, datadir, expdir)
+findBestBlockPartition(conf, datadir, expdir)

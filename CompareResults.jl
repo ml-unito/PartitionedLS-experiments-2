@@ -96,19 +96,19 @@ end
 
 
 @info "PartLSArtificial"
-artificial = getStats("datasets/PartLSArtificial")
+artificial = getStats("experiments/model-quality/PartLSArtificial")
 
 @info "Limpet"
-limpet = getStats("datasets/Limpet")
+limpet = getStats("experiments/model-quality/Limpet")
 
 @info "Facebook Comment Volume Dataset"
-fb = getStats("datasets/Facebook Comment Volume Dataset")
+fb = getStats("experiments/model-quality/Facebook Comment Volume Dataset")
 
 @info "YearPredictionMSD"
-ypred = getStats("datasets/YearPredictionMSD")
+ypred = getStats("experiments/model-quality/YearPredictionMSD")
 
 @info "Superconductivty Data"
-supercond = getStats("datasets/Superconductivty Data")
+supercond = getStats("experiments/model-quality/Superconductivty Data")
 
 
 
@@ -133,4 +133,4 @@ end
 
 @info summary
 
-CSV.write("all-results.csv", summary)
+CSV.write("experiments/model-quality/all-results.csv", summary)
