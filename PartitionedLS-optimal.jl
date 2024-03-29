@@ -15,7 +15,7 @@ using ArgParse
 using Logging
 
 using PartitionedLS
-using Checkpoint
+# using Checkpoint
 include("PartitionedLS-expio.jl")
 
 optimizers = Dict(
@@ -53,9 +53,7 @@ function partlsopt_experiment_run(dir, conf, filename)
     
     # Actual run
     tll, time, _ = @timed  fit(algorithm, Xtr, ytr, P, η = conf["regularization"],
-                            get_solver = optimizers[conf["optimizer"]],
-                            checkpoint = (data) -> checkpoint(conf, data=data, nick="Opt", path=dir),
-                            resume = (initvals) -> resume(conf, init=initvals, nick="Opt", path=dir))
+                            get_solver = optimizers[conf["optimizer"]])
     
     loss = (model, X, y) -> norm(predict(model, X) - y)^2
     
@@ -76,8 +74,8 @@ end
 
 function partlsopt_experiment(dir, conf)
     try
-        exppath = checkpointpath(conf, path=dir)
-        filename = "$exppath/results-OPT"
+        # exppath = checkpointpath(conf, path=dir)
+        filename = "$dir/results-OPT"
     
         partlsopt_experiment_run(dir, conf, filename)
     catch error
@@ -105,11 +103,10 @@ opts = parse_args(s)
 
 dir = opts["dir"]
 conf = read_train_conf(dir)
-mkcheckpointpath(conf, path=dir)
+# mkcheckpointpath(conf, path=dir)
 
 if opts["silent"]
-    exppath = checkpointpath(conf, path=dir)
-    filename = "$exppath/results-OPT"
+    filename = "$dir/results-OPT"
     std_logger = global_logger()
     
     io = open("$filename.log", "w+")
