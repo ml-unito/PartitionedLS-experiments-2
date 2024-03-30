@@ -15,7 +15,24 @@ julia --project=. --color=yes -e 'using Pkg; Pkg.update()'
 
 ## Download the datasets
 
-... TODO
+The datasets directory contains one subfolder for each available dataset.
+
+In each folder you can find either:
+- the actual data, in this case you will see files `data.csv` and `blocks.csv` already present in the directory
+- or a script to generate the data. In this case you will find a CreateData.jl file, that you can launch as it follows:
+  ```bash
+    julia --project=../.. CreateData.jl
+  ```
+- or scripts two download and preprocess the data. In this case you can do these operations as it follows:
+  ```bash
+    bash download.sh
+    julia --project=../.. convert.jl 
+  ```
+
+All five datasets need to be downloaded before the experiments can be run. If you fail to download them, or you
+don't want to use some of them, you can modify the run_* scripts to avoid experimenting with them, but note that
+the scripts that will allow you to format the results require all results to be present. Updating them is feasible,
+but not as easy as changing the bash scripts.
 
 ## Run the experiments
 
