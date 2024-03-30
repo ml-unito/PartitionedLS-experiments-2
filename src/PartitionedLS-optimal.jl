@@ -87,29 +87,16 @@ end
 
 # main
 
-s = ArgParseSettings()
-@add_arg_table s begin
-    "-s", "--silent"
-        help = "Redirect all log messages to a log file in the results dir"
-        action = :store_true
-    "dir"
-        required = true
+
+if length(ARGS)<1
+    println("Usage: PartitionedLS-optimal <datadir>")
+    exit(1)
 end
-opts = parse_args(s)
 
-
-dir = opts["dir"]
+dir = ARGS[1]
 conf = read_train_conf(dir)
 # mkcheckpointpath(conf, path=dir)
 
-if opts["silent"]
-    filename = "$dir/results-OPT"
-    std_logger = global_logger()
-    
-    io = open("$filename.log", "w+")
-    logger = SimpleLogger(io)
-    global_logger(logger)
-end
 
 partlsopt_experiment(dir, conf)
 
