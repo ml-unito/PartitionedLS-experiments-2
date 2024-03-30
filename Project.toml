@@ -1,9 +1,7 @@
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
-Convex = "f65535da-76fb-5f13-bab9-19810c17039a"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Debugger = "31a5f54b-26ea-5ae9-a837-f05ce5417438"
 HypothesisTests = "09f84164-cd44-5f33-b23f-e6b0d136a0d5"
 JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"

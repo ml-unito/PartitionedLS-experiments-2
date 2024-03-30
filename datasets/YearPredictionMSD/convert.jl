@@ -3,7 +3,6 @@
 using DataFrames
 using CSV
 using DelimitedFiles
-using Tables
 
 function add_block(blocks, cols, pos)
     for col in cols
@@ -49,5 +48,5 @@ CSV.write("blocks.csv", blocks)
 @info("Saving data...\n")
 open("data.csv", "w") do io
     writedlm(io, [[string(s) for s in names(df)]], ",")
-    writedlm(io, Tables.matrix(df[:,:]),",")
+    writedlm(io, Matrix(df[:,:]),",")
 end
