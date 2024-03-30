@@ -78,12 +78,11 @@ function fit_with_restarts(dir, conf, filename, Xtr, ytr, Xte, yte, P)
 end
 
 
-function partlsalt_experiment_run(dir, conf, filename)
+function partlsalt_experiment_run(dir, conf, filename, T)
     Xtr, Xte, ytr, yte, P = load_data(dir, conf)
 
     num_retrials = conf["Alt"]["num_retrials"]
-    num_alternations = conf["Alt"]["num_alternations"]
-    exp_name = conf["Alt"]["exp_name"]
+    num_alternations = T
 
     @info "Fitting the model"
 
@@ -108,13 +107,18 @@ function partlsalt_experiment_run(dir, conf, filename)
 end
 
 
-function partlsalt_experiment(datadir, conf)
+function partlsalt_experiment(datadir, conf, T)
     try
         dircomponents = splitpath(datadir)
         expdir = joinpath("experiments", "time-vs-obj", dircomponents[end])
-        filename = "$expdir/results-ALT"
 
-        partlsalt_experiment_run(datadir, conf, filename)
+        if !isdir(expdir)
+            mkdir(expdir)
+        end
+    
+        filename = "$expdir/results-ALT-T$T"
+
+        partlsalt_experiment_run(datadir, conf, filename, T)
     catch error
         @error "Caught exception while executing experiment" conf=conf error=error
         for (exc, bt) in Base.catch_stack()
@@ -125,12 +129,13 @@ function partlsalt_experiment(datadir, conf)
     end
 end
 
-if length(ARGS)<1
-    println("Usage: PartitionedLS-alternating.jl <datadir>")
+if length(ARGS)<2
+    println("Usage: PartitionedLS-alternating.jl <datadir> <num alternations>")
     exit(1)
 end
 
 dir = ARGS[1]
+T = parse(Int64, ARGS[2])
 conf = read_train_conf(dir)
 
-partlsalt_experiment(dir, conf)
+partlsalt_experiment(dir, conf, T)

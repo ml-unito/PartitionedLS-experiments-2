@@ -10,7 +10,7 @@ end
 
 function execute_experiment_within_time_limits(algorithm, expdir, time_bound)
     @info "Starting experiment -- dir: $expdir algorithm: $algorithm"
-    print("julia --project=. src/PartitionedLS-$algorithm.jl -s $expdir")
+    print("julia --project=. src/PartitionedLS-$algorithm.jl $expdir")
     ps = run(`julia PartitionedLS-$algorithm.jl -s $expdir`, wait=false)
 
     starttime = time()
