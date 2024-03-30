@@ -4,7 +4,6 @@ using Printf
 using LinearAlgebra
 using JLD
 using JSON
-using ECOS
 using ArgParse
 
 # Decomment the following if you are actually planning to use
@@ -41,43 +40,41 @@ function partlsopt_experiment_run(dir, conf, filename)
 
     
     @info "Fitting the model"
-    algorithm = (conf["use nnls"] == true ? OptNNLS : Opt)
 
     # Warming up julia environment (avoids counting the time julia needs to compile the function
     # when we time the algorithm execution on the next few lines) 
     @info "Warming up..."
-    _, time, _ = @timed fit(algorithm, Xtr, ytr, P, η = conf["regularization"],
-                        get_solver = optimizers[conf["optimizer"]])
+    _, time, _ = @timed fit(Opt, Xtr, vec(ytr), P, η = conf["regularization"])
     @info "Warmup time: $(time) seconds"
 
     
     # Actual run
-    tll, time, _ = @timed  fit(algorithm, Xtr, ytr, P, η = conf["regularization"],
-                            get_solver = optimizers[conf["optimizer"]])
+    result, time, _ = @timed  fit(Opt, Xtr, vec(ytr), P, η = conf["regularization"])
     
     loss = (model, X, y) -> norm(predict(model, X) - y)^2
     
-    train_objvalue, α, β, t, _ = tll
-    test_objvalue = loss(tll, Xte, yte)
+    train_objvalue = result.opt
+    test_objvalue = loss(result.model, Xte, yte)
     
     push!(df, [time, time, train_objvalue, train_objvalue, test_objvalue, test_objvalue])
     
     @info "objvalue: $train_objvalue"
     @info "loss:" train = train_objvalue test = test_objvalue
     
-    @info "Saving variables into file $filename.jld" α β t
-    save("$filename.jld", "objvalue", train_objvalue, "α", α, "β", β, "t", t)
+    @info "Saving variables into file $filename.jld"
+    save("$filename.jld", "objvalue", train_objvalue, "model", result.model)
     
     @info "Saving performances into $filename.csv"
     CSV.write("$filename.csv", df)
 end
 
-function partlsopt_experiment(dir, conf)
+function partlsopt_experiment(datadir, conf)
     try
-        # exppath = checkpointpath(conf, path=dir)
-        filename = "$dir/results-OPT"
+        dircomponents = splitpath(datadir)
+        expdir = joinpath("experiments", "time-vs-obj", dircomponents[end])
+        filename = "$expdir/results-OPT"
     
-        partlsopt_experiment_run(dir, conf, filename)
+        partlsopt_experiment_run(datadir, conf, filename)
     catch error
         @error "Caught exception while executing experiment" conf=conf error=error
         for (exc, bt) in Base.catch_stack()
