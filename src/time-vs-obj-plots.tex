@@ -1,0 +1,100 @@
+\documentclass[dvipsnames]{article}
+\usepackage{pgfplots}
+\usepackage{subcaption}
+
+\begin{document}
+
+\pgfplotsset{yticklabel style={text width=3em,align=right}}
+
+\begin{figure}
+\centering
+\begin{subfigure}{0.49\textwidth}
+\begin{tikzpicture}
+\begin{axis}[
+    scale=0.7,
+    xmode=log,
+    xmin=0, xmax=10,
+    grid=both,
+    major grid style={black!50}
+]
+\addplot[orange, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Limpet/results-ALT-T20.csv};
+\addplot[NavyBlue, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Limpet/results-ALT-T100.csv};
+\addplot[OrangeRed, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Limpet/results-OPT.csv};
+\addlegendentry{PartLS-Alt T20}
+\addlegendentry{PartLS-Alt T100}
+\addlegendentry{PartLS-Opt}
+\end{axis}
+\end{tikzpicture}
+\caption{Limpet}
+\label{fig:limpet}
+\end{subfigure}
+\begin{subfigure}{0.49\textwidth}
+
+\begin{tikzpicture}
+\begin{axis}[
+    scale=0.7,
+    xmode=log,
+    % xmin=0, xmax=1e1,
+    grid=both,
+    major grid style={black!50}
+]
+\addplot[orange, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Superconductivty Data/results-ALT-T20.csv};
+\addplot[NavyBlue, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Superconductivty Data/results-ALT-T100.csv};
+\addplot[OrangeRed, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Superconductivty Data/results-OPT.csv};
+% \addlegendentry{PartLS-Alt T20}
+% \addlegendentry{PartLS-Alt T100}
+% \addlegendentry{PartLS-Opt}
+\end{axis}
+\end{tikzpicture}
+    
+\caption{Superconductivity}
+\label{fig:second}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.49\textwidth}
+\begin{tikzpicture}
+\begin{axis}[
+    scale=0.7,
+    xmode=log,
+    % xmin=0, xmax=1e1,
+    grid=both,
+    major grid style={black!50}
+]
+\addplot[orange, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Facebook Comment Volume Dataset/results-ALT-T20.csv};
+\addplot[NavyBlue, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Facebook Comment Volume Dataset/results-ALT-T100.csv};
+\addplot[OrangeRed, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Facebook Comment Volume Dataset/results-OPT.csv};
+% \addlegendentry{PartLS-Alt T20}
+% \addlegendentry{PartLS-Alt T100}
+% \addlegendentry{PartLS-Opt}
+\end{axis}
+\end{tikzpicture}    \caption{Facebook Comment Volume}
+    \label{fig:third}
+\end{subfigure}
+\begin{subfigure}{0.49\textwidth}
+\begin{tikzpicture}
+\begin{axis}[
+    scale=0.7,
+    xmode=log,
+    % xmin=0, xmax=1e1,
+    grid=both,
+    major grid style={black!50}
+]
+\addplot[orange, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/YearPredictionMSD/results-ALT-T20.csv};
+\addplot[NavyBlue, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/YearPredictionMSD/results-ALT-T100.csv};
+\addplot[OrangeRed, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/YearPredictionMSD/results-OPT.csv};
+% \addlegendentry{PartLS-Alt T20}
+% \addlegendentry{PartLS-Alt T100}
+% \addlegendentry{PartLS-Opt}
+\end{axis}
+\end{tikzpicture}
+    
+    \caption{YearPredictionMSD}
+    \label{fig:fourth}
+\end{subfigure}
+
+\caption{Plot of the behavior of the two proposed algorithms on four datasets. algoalt has been repeated 100 times following a multi-start strategy and in two settings T=20 (blue) and T=100 (in orange). Each point on the orange and blue lines reports the cumulative time and best objective found during these 100 restarts. algoopt outputs a single solution, drawn in green.}
+\label{fig:time-vs-obj-figures}
+
+\end{figure}
+
+\end{document}
