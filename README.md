@@ -13,6 +13,10 @@ From inside the project directory update the Julia packages by running:
 julia --project=. --color=yes -e 'using Pkg; Pkg.update()'
 ```
 
+## Download the datasets
+
+... TODO
+
 ## Run the experiments
 
 ```bash
