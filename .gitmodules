@@ -1,3 +1,0 @@
-[submodule "PartitionedLS"]
-	path = PartitionedLS
-	url = git@github.com:ml-unito/PartitionedLS.git

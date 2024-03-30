@@ -3,6 +3,7 @@
 using DataFrames
 using CSV
 using DelimitedFiles
+using Tables
 
 function add_block(blocks, cols, pos)
     for col in cols
@@ -14,7 +15,7 @@ function add_block(blocks, cols, pos)
 end
 
 function load_X()
-    df = CSV.read("train.csv")
+    df = CSV.read("train.csv", DataFrame)
     cols = names(df)
 
 
@@ -30,7 +31,8 @@ function load_X()
     add_block(blocks, cols[61:70], 7)
     add_block(blocks, cols[71:81], 8)
 
-    rename!(df, [cols[1:81]; :y] )
+    # rename!(df, [cols[1:81]; :y] )
+    rename!(df, :critical_temp => :y)
 
     return df, blocks
 end
@@ -43,5 +45,5 @@ CSV.write("blocks.csv", blocks)
 @info("Saving data...\n")
 open("data.csv", "w") do io
     writedlm(io, [[string(s) for s in names(df)]], ",")
-    writedlm(io, convert(Matrix, df[:,:]),",")
+    writedlm(io, Tables.matrix(df),",")
 end

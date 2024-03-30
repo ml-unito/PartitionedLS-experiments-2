@@ -1,7 +1,7 @@
 # Partitioned Least Squares
 
 This repository contains the code to replicate experiments on the PartitioningLS model
-as reported in the article published on [arXiv](https://arxiv.org/abs/2006.16202).
+as reported in the article published on ```TODO```.
 
 ## Setup you environment
 
@@ -16,20 +16,32 @@ julia --project=. --color=yes -e 'using Pkg; Pkg.update()'
 ## Run the experiments
 
 ```bash
-julia --project=. run_experiments.jl
+bash run_model_quality_experiments.sh
+bash run_time_vs_obj_experiments.sh
 ```
 
 ## Accessing results
 
-A python script that implements a simple web server is provided so to allow
-to peruse the results once they are terminated.
+After running the experiments, the results will be stored in the `experiments` directory.
 
-To launch the web server **move into the experiments** folder and run:
+You can get a summary table of the results about model-quality by running:
 
 ```bash
-    python3 ../http_serve_results.py
+julia --project=. src/CompareResults.jl
 ```
 
-Point your browser to "http://localhost:8080" and you should see a web
-page showing the names of the four datasets. Opening the links will show
-the results for each dataset.
+You can create a pdf file with a plot of the time-vs-obj experiments by running:
+
+```bash
+pdflatex src/time-vs-obj.tex
+```
+
+and access the results by opening the `time-vs-obj.pdf` file.
+
+## Citing
+
+If you use this code in your research, please cite the following article:
+
+```
+TODO
+```

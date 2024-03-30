@@ -1,0 +1,31 @@
+Dataset,Method,TrainMean,TrainStd,TestMean,TestStd
+Artificial,LS,0.1759,0.04,0.8060,0.16
+Artificial,Part-P-LS,0.1759,0.04,0.8060,0.16
+Artificial,Part-P-Orig,0.1885,0.05,0.6845,0.11
+Artificial,PCLS,23.5646,4.48,30.3264,2.26
+Artificial,PLS,0.5060,0.10,2.0636,0.64
+Artificial,Part-P-LS-Opt,0.1885,0.05,0.6845,0.11
+Limpet,LS,0.0000,0.00,4.1391,3.95
+Limpet,Part-P-LS,0.0000,0.00,6.9099,12.56
+Limpet,Part-P-Orig,0.0000,0.00,49.5994,56.39
+Limpet,PCLS,0.7085,0.13,1.0548,0.39
+Limpet,PLS,0.6364,0.76,1.2695,1.65
+Limpet,Part-P-LS-Opt,0.0000,0.00,4.4367,4.20
+Facebook,LS,2785.6553,450.79,3012.9160,725.57
+Facebook,Part-P-LS,2785.6553,450.79,3012.9160,725.57
+Facebook,Part-P-Orig,2850.4851,457.82,3023.1348,733.19
+Facebook,PCLS,3672.9801,503.71,3687.1780,789.64
+Facebook,PLS,3765.2822,509.81,3784.4111,798.20
+Facebook,Part-P-LS-Opt,2791.9103,450.93,2988.1926,722.48
+Year Prediction,LS,89.9616,1.97,91.8708,2.20
+Year Prediction,Part-P-LS,89.9616,1.97,91.8708,2.20
+Year Prediction,Part-P-Orig,100.2951,2.02,101.8315,2.28
+Year Prediction,PCLS,115.2383,2.39,115.5236,2.71
+Year Prediction,PLS,342331.0603,6844.32,356016.3586,11109.68
+Year Prediction,Part-P-LS-Opt,90.1798,1.97,91.7042,2.18
+Superconductivity,LS,307.6365,3.68,310.8739,5.76
+Superconductivity,Part-P-LS,307.6365,3.68,310.8739,5.76
+Superconductivity,Part-P-Orig,376.8152,3.91,379.3639,5.87
+Superconductivity,PCLS,762.7407,6.77,764.4683,11.35
+Superconductivity,PLS,566.8627,5.25,567.6426,8.32
+Superconductivity,Part-P-LS-Opt,307.7331,3.68,310.7671,5.76
