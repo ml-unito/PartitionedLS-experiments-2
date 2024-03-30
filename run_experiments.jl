@@ -69,7 +69,7 @@ for dir in dirs
     @info "Processing dir: $dir"
 
     if !isdir("experiments/$dir")
-        mkdir("experiments/$dir")
+        mkpath("experiments/$dir")
     end
 
     if !opts["no-download"]
