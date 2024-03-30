@@ -3,10 +3,10 @@ ALGORITHMS="SimplePLS.jl"
 
 
 for algorithm in $ALGORITHMS; do
-    julia --project=. $algorithm datasets/PartLSArtificial
-    julia --project=. $algorithm datasets/Limpet
-    julia --project=. $algorithm datasets/Facebook\ Comment\ Volume\ Dataset
-    julia --project=. $algorithm datasets/Superconductivty\ Data
-    julia --project=. $algorithm datasets/YearPredictionMSD
+    julia --project=. src/$algorithm datasets/PartLSArtificial
+    julia --project=. src/$algorithm datasets/Limpet
+    julia --project=. src/$algorithm datasets/Facebook\ Comment\ Volume\ Dataset
+    julia --project=. src/$algorithm datasets/Superconductivty\ Data
+    julia --project=. src/$algorithm datasets/YearPredictionMSD
 done
 
