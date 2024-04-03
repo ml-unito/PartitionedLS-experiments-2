@@ -41,6 +41,8 @@ bash run_model_quality_experiments.sh
 bash run_time_vs_obj_experiments.sh
 ```
 
+The analysis of the Housing dataset is included in a julia notebook that can be found in the `housing` directory.
+
 ## Accessing results
 
 After running the experiments, the results will be stored in the `experiments` directory.
