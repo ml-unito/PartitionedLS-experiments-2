@@ -28,13 +28,14 @@ function performExperiments(datapath, blockUsage, blockname)
         ytr = vec(ytr)
 
         # Least squares on Xtr, ytr
-        result = nothing
+        model = PartLS(P=P, η=0.0)
+        mach = machine(model, Xtr, ytr)
         @suppress begin
-            result = PartitionedLS.fit(Opt, Xtr, ytr, P, η = 0.0)
+            fit!(mach)
         end
 
-        preds_tr = PartitionedLS.predict(result.model, Xtr)
-        preds_te = PartitionedLS.predict(result.model, Xte)
+        preds_tr = predict(mach, Xtr)
+        preds_te = predict(mach, Xte)
 
         # Compute errors
         err_tr = sum((preds_tr .- ytr).^2)

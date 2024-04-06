@@ -5,5 +5,6 @@ echo $DATASETS
 for dataset in "${DATASETS[@]}"; do
   julia --project=. src/PartitionedLS-alternating.jl "datasets/$dataset" 20
   julia --project=. src/PartitionedLS-alternating.jl "datasets/$dataset" 100
-  julia --project=. src/PartitionedLS-optimal.jl "datasets/$dataset"
+  julia --project=. src/PartitionedLS-optimal.jl "datasets/$dataset" Opt
+  julia --project=. src/PartitionedLS-optimal.jl "datasets/$dataset" BnB
 done

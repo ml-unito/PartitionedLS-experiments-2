@@ -20,9 +20,12 @@
 \addplot[orange, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Limpet/results-ALT-T20.csv};
 \addplot[NavyBlue, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Limpet/results-ALT-T100.csv};
 \addplot[OrangeRed, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Limpet/results-OPT.csv};
+\addplot[Green, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Limpet/results-BnB.csv};
 \addlegendentry{PartLS-Alt T20}
 \addlegendentry{PartLS-Alt T100}
 \addlegendentry{PartLS-Opt}
+\addlegendentry{PartLS-BnB}
+
 \end{axis}
 \end{tikzpicture}
 \caption{Limpet}
@@ -41,6 +44,8 @@
 \addplot[orange, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Superconductivty Data/results-ALT-T20.csv};
 \addplot[NavyBlue, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Superconductivty Data/results-ALT-T100.csv};
 \addplot[OrangeRed, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Superconductivty Data/results-OPT.csv};
+\addplot[Green, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Superconductivty Data/results-BnB.csv};
+
 % \addlegendentry{PartLS-Alt T20}
 % \addlegendentry{PartLS-Alt T100}
 % \addlegendentry{PartLS-Opt}
@@ -63,6 +68,8 @@
 \addplot[orange, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Facebook Comment Volume Dataset/results-ALT-T20.csv};
 \addplot[NavyBlue, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Facebook Comment Volume Dataset/results-ALT-T100.csv};
 \addplot[OrangeRed, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Facebook Comment Volume Dataset/results-OPT.csv};
+\addplot[Green, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/Facebook Comment Volume Dataset/results-BnB.csv};
+
 % \addlegendentry{PartLS-Alt T20}
 % \addlegendentry{PartLS-Alt T100}
 % \addlegendentry{PartLS-Opt}
@@ -82,6 +89,8 @@
 \addplot[orange, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/YearPredictionMSD/results-ALT-T20.csv};
 \addplot[NavyBlue, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/YearPredictionMSD/results-ALT-T100.csv};
 \addplot[OrangeRed, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/YearPredictionMSD/results-OPT.csv};
+\addplot[Green, mark=*] table [x=TimeCumulative, y=TrainBest, col sep=comma]{experiments/time-vs-obj/YearPredictionMSD/results-BnB.csv};
+
 % \addlegendentry{PartLS-Alt T20}
 % \addlegendentry{PartLS-Alt T100}
 % \addlegendentry{PartLS-Opt}
@@ -92,7 +101,7 @@
     \label{fig:fourth}
 \end{subfigure}
 
-\caption{Plot of the behavior of the two proposed algorithms on four datasets. algoalt has been repeated 100 times following a multi-start strategy and in two settings T=20 (blue) and T=100 (in orange). Each point on the orange and blue lines reports the cumulative time and best objective found during these 100 restarts. algoopt outputs a single solution, drawn in green.}
+\caption{Plot of the behavior of the two proposed algorithms on four datasets. algoalt has been repeated 100 times following a multi-start strategy and in two settings T=20 (blue) and T=100 (in orange). Each point on the orange and blue lines reports the cumulative time and best objective found during these 100 restarts. PartLS-Opt (PartLS-BnB) outputs a single solution, drawn in red  (green).}
 \label{fig:time-vs-obj-figures}
 
 \end{figure}

@@ -55,8 +55,8 @@ function fit_with_restarts(dir, conf, filename, Xtr, ytr, Xte, yte, P)
         result, time, _ = @timed fit(Alt, Xtr, vec(ytr), P, η = 0.0, nnlsalg=:nnls, T=num_alternations)
 
 
-        train_objvalue = result.opt
-        test_objvalue = loss(result.model, Xte, yte)
+        train_objvalue = result[3].opt
+        test_objvalue = loss(result[1], Xte, yte)
 
         cumulative_time += time
 
@@ -89,18 +89,18 @@ function partlsalt_experiment_run(dir, conf, filename, T)
     results, df = fit_with_restarts(dir, conf, filename, Xtr, ytr, Xte, yte, P)
 
     function getobj(fitted_params)
-        fitted_params.opt
+        fitted_params[3].opt
     end
 
     best_i = argmin(map( getobj, results))
     best_result = results[best_i]
 
 
-    @info "objvalue: $(best_result.opt)"
-    @info "Losses:" train = loss(best_result.model, Xtr, ytr) test = loss(best_result.model, Xte, yte)
+    @info "objvalue: $(best_result[3].opt)"
+    @info "Losses:" train = loss(best_result[1], Xtr, ytr) test = loss(best_result[1], Xte, yte)
 
     @info "Saving optimal values of α β t and objvalue to $filename.jld"
-    save("$filename.jld", "objvalue", best_result.opt, "model", best_result.model)
+    save("$filename.jld", "objvalue", best_result[3], "model", best_result[1])
 
     @info "Saving final performances to $filename.csv"
     CSV.write("$filename.csv", df)
